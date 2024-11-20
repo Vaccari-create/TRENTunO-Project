@@ -1,0 +1,439 @@
+openapi: 3.0.0
+info:
+  title: Simple Inventory API
+  description: This is a simple API
+  contact:
+    email: you@your-company.com
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+# Added by API Auto Mocking Plugin
+- description: SwaggerHub API Auto Mocking
+  url: https://virtserver.swaggerhub.com/MatteoLunardon/TRENTunOAPIs_la_vendetta/1.0.0
+- url: https://virtserver.swaggerhub.com/JOAOPROGRAMMING/TRENTunO/1.0.0
+  description: TRENTunO API Auto Mocking
+tags:
+- name: admins
+  description: Secured Admin-only calls
+- name: clients
+  description: Operations available to regular clients
+paths:
+  /client/parks/:
+    get:
+      tags:
+      - clients
+      summary: searches parks
+      description: |
+        By passing in the appropriate options, you can search for all
+        available parks in the system |
+      operationId: searchPark
+      parameters:
+      - name: searchString
+        in: query
+        description: pass an optional search string for looking up inventory
+        required: false
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: skip
+        in: query
+        description: number of records to skip for pagination
+        required: false
+        style: form
+        explode: true
+        schema:
+          minimum: 0
+          type: integer
+          format: int32
+      - name: limit
+        in: query
+        description: maximum number of records to return
+        required: false
+        style: form
+        explode: true
+        schema:
+          maximum: 50
+          minimum: 0
+          type: integer
+          format: int32
+      responses:
+        "200":
+          description: search results matching criteria
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: string
+        "400":
+          description: bad input parameter
+  /client/login/:
+    get:
+      tags:
+      - clients
+      summary: log in
+      description: |
+        By passing email and password, if you have an account, you can log in into the site |
+      operationId: clientLogin
+      parameters:
+      - name: email
+        in: query
+        description: user's email that he used to register
+        style: form
+        required: true
+        schema:
+          type: string
+      - name: password
+        in: query
+        description: user's password
+        style: form
+        required: true
+        schema:
+          type: string
+      responses:
+        "200" : 
+          description: you logged in 
+  /client/register :
+    post:
+        tags:
+        - clients
+        summary:  register an account
+        description: |
+          By passing in the appropriate parameters an user can create a personal 
+          account |
+        operationId: clientRegister
+        parameters: 
+        - name: email
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: name
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: surname
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: password
+          in: query
+          required: true
+          schema:
+            type: string
+        responses:
+          "200" : 
+            description: account crated
+          "400" :
+            description: unvalid input
+          "500" :
+            description: account already exists
+  /client/getpark:
+      get:
+        tags:
+        - clients
+        summary: get specific park
+        description: |
+          By passing a park's id you get all the park's information |
+        operationId: getark
+        parameters:
+          - name: id
+            in: query
+            required: true
+            schema:
+              type: integer
+        responses:
+          "200" :
+           description: park fouded
+           content:
+            application/json:
+              schema: 
+                $ref: '#/components/schemas/ParkItem'
+  /client/addReview:
+      post:
+        tags: 
+        - clients
+        summary: add a Review 
+        description: |
+         By passing a text that describe yours opinion and a vote between 1 and 5 you can add a review of a specific park |
+        operationId: addRev
+        parameters: 
+          - name: text
+            in: query
+            required: false
+            schema:
+              type: string
+          - name: vote
+            in: query
+            required: true
+            schema:
+              type: integer
+        responses:
+          "200" :
+            description: item added
+          "400" :
+            description: invalid input
+          "409" :
+            description: item alredy exists
+  /client/removeReview:
+      delete:
+        tags: 
+        - clients
+        summary: delete a Review
+        description: |
+          By pressing a button the user can delete his own review |
+        operationId: delRev
+        parameters: 
+          - name: id
+            in: query
+            required: true
+            schema:
+              type: integer
+        responses:
+          "200" :
+            description: item removed
+          "500" :
+            description: internal server error
+  /client/sendPermissionRequest:
+      post:
+        tags: 
+        - clients
+        summary: send a permission request
+        description: |
+          By passing all the paramters a request to get the permission to publishing events will be send |
+        operationId: sendReq
+        parameters: 
+        - name: accountid
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: text
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: document
+          in: query
+          required: true
+          schema:
+            type: string
+        responses: 
+          "200": 
+            description: permission request sent
+          "400":
+            description: invalid input
+          "409": 
+            description: already sent
+  /client/addEvent:
+      post:
+        tags:
+        - clients
+        summary: add Event
+        description: |
+          by passing the required paramters an evnet will be added ( only after an operator approve it) |
+        operationId: addEvent
+        parameters: 
+          - name: parkid
+            in: query
+            required: true
+            schema:
+              type: string
+          - name: name
+            in: query
+            required: true
+            schema:
+              type: string
+          - name: description
+            in: query
+            required: true
+            schema:
+              type: string
+          - name: date
+            in: query
+            required: true
+            schema:
+              type: string
+        responses:
+          "200" :
+            description: event added
+          "400" : 
+            description: invalid input
+  /client/updateProfile:
+      put:
+        tags: 
+        - clients
+        summary: update Profile
+        description: |
+         chage some account info |
+        parameters: 
+          - name: desciption
+            in: query
+            required: false
+            schema:
+              type: string
+          - name: name
+            in: query
+            required: false
+            schema:
+              type: string
+          - name: surname
+            in: query
+            required: false
+            schema:
+              type: string
+        responses:
+          "200" :
+            description: info updated
+  /admins/addpark:
+    post:
+      tags:
+      - admins
+      summary: adds an inventory item
+      description: Adds an item to the system
+      operationId: addInventory
+      parameters: 
+      - name: parkName
+        in: query
+        description: park's name
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: position
+        in: query
+        description: park's position on the map 
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: description
+        in: query
+        description: park's generic description
+        required: false
+        style : form
+        explode: true
+        schema:
+          type: string
+      requestBody:
+        description: Inventory item to add
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/InventoryItem'
+      responses:
+        "201":
+          description: item created
+        "400":
+          description: "invalid input, object invalid"
+        "409":
+          description: an existing item already exists
+  /admins/eventsRequests:
+    get:
+      tags: 
+      - admins
+      summary: get all events
+      description: |
+        return a list of all the events that need to be accepted |
+      operationId: eventRequests
+      responses:
+       "200":
+          description: all events returned
+          content:
+            application/json:
+              schema: 
+                type: array
+                items:  
+                  $ref: '#/components/schemas/EventItem'
+  /admins/requests:
+     get:
+      tags: 
+      - admins
+      summary: get all permmison requests
+      description: |
+        return a list of all the requests of permission  |
+      operationId: permissionRequests
+      responses:
+       "200":
+          description: all permission returned
+          content:
+            application/json:
+              schema: 
+                type: array
+                items:  
+                  $ref: '#/components/schemas/RequestItem'
+components:
+  schemas:
+    ParkItem:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Albere
+        id: 
+          type: integer
+        position:
+          type: string
+        description:
+          type: string
+    EventItem:
+      type: object
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        date:
+          type: string
+    RequestItem:
+      type: object
+      properties:
+        account:
+          type: string
+        document:
+          type: string
+        description:
+          type: string
+    InventoryItem:
+      required:
+      - id
+      - manufacturer
+      - name
+      - releaseDate
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+        name:
+          type: string
+          example: Widget Adapter
+        releaseDate:
+          type: string
+          format: date-time
+          example: 2016-08-29T09:12:33.001Z
+        manufacturer:
+          $ref: '#/components/schemas/Manufacturer'
+    Manufacturer:
+      required:
+      - name
+      type: object
+      properties:
+        name:
+          type: string
+          example: ACME Corporation
+        homePage:
+          type: string
+          format: url
+          example: https://www.acme-corp.com
+        phone:
+          type: string
+          example: 408-867-5309
