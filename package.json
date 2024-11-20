@@ -1,0 +1,22 @@
+{
+  "name": "authentication",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "node -r dotenv/config index.js",
+    "start": "node index.js",
+    "createUser": "node -r dotenv/config scripts/createUser.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "express": "^4.21.1",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.7.3"
+  },
+  "devDependencies": {
+    "dotenv": "^16.4.5"
+  }
+}
