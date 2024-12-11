@@ -20,7 +20,7 @@ tags:
 - name: clients
   description: Operations available to regular clients
 paths:
-  /client/parks/:
+  /client/parks:
     get:
       tags:
       - clients
@@ -67,17 +67,17 @@ paths:
               schema:
                 type: array
                 items:
-                  type: string
+                  $ref: '#/components/schemas/ParkItem'
         "400":
           description: bad input parameter
-  /client/login/:
+  /client/logIn:
     get:
       tags:
       - clients
       summary: log in
       description: |
         By passing email and password, if you have an account, you can log in into the site |
-      operationId: clientLogin
+      operationId: clientLogIn
       parameters:
       - name: email
         in: query
@@ -96,7 +96,7 @@ paths:
       responses:
         "200" : 
           description: you logged in 
-  /client/register :
+  /client/signUp :
     post:
         tags:
         - clients
@@ -104,25 +104,25 @@ paths:
         description: |
           By passing in the appropriate parameters an user can create a personal 
           account |
-        operationId: clientRegister
+        operationId: clientSignUp
         parameters: 
         - name: email
-          in: query
+          in: body
           required: true
           schema:
             type: string
         - name: name
-          in: query
+          in: body
           required: true
           schema:
             type: string
         - name: surname
-          in: query
+          in: body
           required: true
           schema:
             type: string
         - name: password
-          in: query
+          in: body
           required: true
           schema:
             type: string
@@ -140,13 +140,13 @@ paths:
         summary: get specific park
         description: |
           By passing a park's id you get all the park's information |
-        operationId: getark
+        operationId: getpark
         parameters:
-          - name: id
+          - name: parkId
             in: query
             required: true
             schema:
-              type: integer
+              type: string
         responses:
           "200" :
            description: park fouded
@@ -163,16 +163,27 @@ paths:
          By passing a text that describe yours opinion and a vote between 1 and 5 you can add a review of a specific park |
         operationId: addRev
         parameters: 
+          - name: userId
+            in: body
+            required: false
+            schema:
+              type: string
+          - name: parkId
+            in: body
+            required: false
+            schema:
+              type: string
           - name: text
-            in: query
+            in: body
             required: false
             schema:
               type: string
           - name: vote
-            in: query
+            in: body
             required: true
             schema:
               type: integer
+  
         responses:
           "200" :
             description: item added
@@ -189,8 +200,8 @@ paths:
           By pressing a button the user can delete his own review |
         operationId: delRev
         parameters: 
-          - name: id
-            in: query
+          - name: reviewId
+            in: body
             required: true
             schema:
               type: integer
@@ -208,21 +219,21 @@ paths:
           By passing all the paramters a request to get the permission to publishing events will be send |
         operationId: sendReq
         parameters: 
-        - name: accountid
-          in: query
+        - name: userId
+          in: body
           required: true
           schema:
             type: string
         - name: text
-          in: query
+          in: body
           required: true
           schema:
             type: string
         - name: document
-          in: query
+          in: body
           required: true
           schema:
-            type: string
+            type: string # we are saving the url poiting to the image in a local server
         responses: 
           "200": 
             description: permission request sent
@@ -240,22 +251,27 @@ paths:
         operationId: addEvent
         parameters: 
           - name: parkid
-            in: query
+            in: body
             required: true
             schema:
               type: string
+          - name: userId
+            in: body
+            required: true
+            schema:
+              type: string # It's an Object id ( in the database )
           - name: name
-            in: query
+            in: body
             required: true
             schema:
               type: string
           - name: description
-            in: query
+            in: body
             required: true
             schema:
               type: string
           - name: date
-            in: query
+            in: body
             required: true
             schema:
               type: string
@@ -272,24 +288,49 @@ paths:
         description: |
          chage some account info |
         parameters: 
+          - name: userId
+            in: body
+            required: true
+            schema:
+              type: string # It's an Object id ( in the database )
           - name: desciption
-            in: query
+            in: body
             required: false
             schema:
               type: string
           - name: name
-            in: query
+            in: body
             required: false
             schema:
               type: string
           - name: surname
-            in: query
+            in: body
             required: false
             schema:
               type: string
         responses:
           "200" :
             description: info updated
+  /clients/addReport:
+    put:
+      tags:
+        - clients 
+      description: |
+        add a report |
+      parameters: 
+        - name: parkId
+          in: body
+          required: false
+          schema:
+            type: string
+        - name: description
+          in: body
+          required: false
+          schema:
+            type: string
+      resposes:
+        "200":
+          description: "report created"
   /admins/addpark:
     post:
       tags:
@@ -299,29 +340,45 @@ paths:
       operationId: addInventory
       parameters: 
       - name: parkName
-        in: query
+        in: body
         description: park's name
         required: true
         style: form
         explode: true
         schema:
           type: string
-      - name: position
-        in: query
-        description: park's position on the map 
+      - name: coordX
+        in: body
+        description: park's x position on the map
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: coordY
+        in: body
+        description: park's Y position on the map 
         required: true
         style: form
         explode: true
         schema:
           type: string
       - name: description
-        in: query
+        in: body
         description: park's generic description
         required: false
         style : form
         explode: true
         schema:
           type: string
+      - name: features
+        in: body
+        description: features
+        required: true
+        schema: 
+          type: array
+            content:
+              $ref: '#/components/schemas/Feature'
       requestBody:
         description: Inventory item to add
         content:
@@ -369,6 +426,120 @@ paths:
                 type: array
                 items:  
                   $ref: '#/components/schemas/RequestItem'
+  /admins/addEvent:
+      post:
+        tags:
+          - admins
+        summary: add an Event to the Databse
+        description: | 
+          admin accept the useer's event |
+        operationId: addEvent
+        parameters: 
+      - name: eventName
+        in: query
+        description: event name
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: data
+        in: query
+        description: event's data
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+      - name: description
+        in: query
+        description: event description
+        required: false
+        style : form
+        explode: true
+        schema:
+          type: string
+      - name: parkId
+        in : query
+        description: where the event take place
+        required: false
+        style: form
+        schema:
+          type: string
+      - name: userId
+        in: query
+        description: user id 
+        required: false
+        style: form
+        schema:
+          type: string
+        responses:
+          "200":
+              description: event added successfully
+          "400":
+            description: "invalid input, object invalid"
+          "409":
+            description: an existing item already exists
+  /admins/removeRequest:
+    delete:
+      tags:
+        - admins
+      description: |
+        reqeust denied |
+      operationId: removeRequest
+      parameters:
+        - name: requestId
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+            description: "request deleted"
+  /admins/removeEventRequest:
+    delete:
+      tags:
+        - admins
+      description: |
+        event denied |
+      operationId: removeEventRequest
+      parameters:
+        - name: eventRequestId
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+            description: "event request deleted"
+  /admins/removeReport:
+    delete:
+      tags:
+        - admins
+      description: |
+        report read |
+      operationId: removeReport
+      parameters:
+        - name: reportId
+          in: query
+          schema:
+            type: string
+      responses:
+        "200":
+            description: "report deleted"
+  /admins/permissionGranted:
+    put:
+      tags:
+        -admins
+      description: |
+        allow a user to publish event |
+      operationId: permissionGranted
+      parameters:
+        - name: userId
+          in: query
+          schema: 
+            type: string
+      responses:
+        "200":
+            description: "permission Granted"
 components:
   schemas:
     ParkItem:
@@ -401,39 +572,12 @@ components:
           type: string
         description:
           type: string
-    InventoryItem:
-      required:
-      - id
-      - manufacturer
-      - name
-      - releaseDate
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          example: d290f1ee-6c54-4b01-90e6-d701748f0851
-        name:
-          type: string
-          example: Widget Adapter
-        releaseDate:
-          type: string
-          format: date-time
-          example: 2016-08-29T09:12:33.001Z
-        manufacturer:
-          $ref: '#/components/schemas/Manufacturer'
-    Manufacturer:
-      required:
-      - name
-      type: object
-      properties:
-        name:
-          type: string
-          example: ACME Corporation
-        homePage:
-          type: string
-          format: url
-          example: https://www.acme-corp.com
-        phone:
-          type: string
-          example: 408-867-5309
+    Feature:
+      enum:
+        - child
+        - old
+        - playGround
+        - benches
+        - fountains
+        - sport
+        - dogfield
