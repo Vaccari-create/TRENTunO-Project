@@ -1,7 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
-const { Db } = require('mongodb');
+const { Db, ObjectId } = require('mongodb');
 const multer = require('multer');
 const path = require('path');
 const mongoose = require('mongoose');
@@ -10,10 +10,23 @@ var app = express();
 app.use(cors());
 app.use(morgan("tiny"));
 app.use(express.json())
-const port = 3000;
-const Park = require("./Entities/Park");
-const User = require("./Entities/User");
-const Image = require("./Entities/Image");
+const port = 8080;
+const Image = require("./models/Image");
+
+
+const reviews = require('./Routes/reviews');
+const parks = require('./Routes/parks');
+//const users = require('./Routes/users');
+//const reports = require('./Routes/reports');
+
+
+app.use('/api/reviews', reviews);
+app.use('/api/parks', parks);
+
+app.use((err, req, res, next) => {
+  console.error(err.stack);
+  res.status(500).send({ error: 'Something went wrong!' });
+});
 
 // Configurazione di multer per salvare le immagini
 const uploadFolder = path.join(__dirname, "uploads");
@@ -66,23 +79,6 @@ app.get("/image/:id", async (req, res) => {
       res.status(500).json({ error: err.message });
     }
   });
-  
 
-const DB = process.env.DB;
-app.get('/:name',async(req,res) => {
-    const park1 = await Park.findOne({name:req.name}).exec();
-    if(park1)
-        res.send(park1.toJSON());
-    else
-        res.send("Errore");
-})
-app.get('/b',async(req,res) => {
-    const user1 = await User.findOne({username: 'marco'}).exec();
-    if(user1)
-        res.send("trovato"+user1.username);
-    else
-        res.send("Errore");
-})
-
-app.listen(port,()=>{console.log('Example app listening on port ${port}')})
+app.listen(port,()=>{console.log('Example app listening on port ' + port)})
 mongoose.connect('mongodb+srv://Admin:Admin31@cluster31.d2mdy.mongodb.net/TRENTunO');

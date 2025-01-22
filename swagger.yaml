@@ -15,62 +15,323 @@ servers:
 - url: https://virtserver.swaggerhub.com/JOAOPROGRAMMING/TRENTunO/1.0.0
   description: TRENTunO API Auto Mocking
 tags:
-- name: admins
-  description: Secured Admin-only calls
-- name: clients
-  description: Operations available to regular clients
+- name: User
+  description: API to manage the users in the system
+- name: Park
+  description: API to manage the parks in the system
+- Review: Review
+  description: API to manage the review in the system
+- name: Report
+  description: API to manage the reports in the system
+- name: PubRequest
+  description: API to manage the publication requests in the system
 paths:
-  /client/parks/:
+  /user:
     get:
       tags:
-      - clients
-      summary: searches parks
-      description: |
-        By passing in the appropriate options, you can search for all
-        available parks in the system |
-      operationId: searchPark
-      parameters:
-      - name: searchString
-        in: query
-        description: pass an optional search string for looking up inventory
-        required: false
-        style: form
-        explode: true
-        schema:
-          type: string
-      - name: skip
-        in: query
-        description: number of records to skip for pagination
-        required: false
-        style: form
-        explode: true
-        schema:
-          minimum: 0
-          type: integer
-          format: int32
-      - name: limit
-        in: query
-        description: maximum number of records to return
-        required: false
-        style: form
-        explode: true
-        schema:
-          maximum: 50
-          minimum: 0
-          type: integer
-          format: int32
+      - User
+      description: This API will return all users in the system
       responses:
         "200":
-          description: search results matching criteria
+        description: successful operation
+        content:
+          application/json:
+            type: array
+            schema:
+              items:
+                $ref: '#/components/UserItem'
+        "400":
+          description: bad input
+    post:
+      tags:
+      - User
+      description: This API will add a new user to the system
+      parameters: 
+      - name: User
+        in: body
+        description: User object
+        required: true
+        schema:
+          $ref: '#/components/schemas/UserItem'
+      responses:
+        "201":
+          description: successful operation
+        "400":
+          description: "invalid input, object invalid"
+        "409":
+          description: an existing item already exists
+  /user/{id}:
+    get:
+      tags:
+      - User
+      description: This API will return the user in the system who has the id specified
+      parameters:
+        - name: id
+        in: path
+        description: Park id
+        required: true 
+        schema: 
+          item:
+            $ref: '#/components/Users'
+      responses:
+        "200":
+          description: successful operation
+          content:
+          application/json:
+            schema:
+              $ref: '#/components/UserItem'
+        "400":
+          description: bad input parameter
+
+
+  /park:
+    get:
+      tags:
+      - Park
+      summary: searches parks
+      description: This API will return an array with all parks in the system. 
+      parameters:
+      - name: Category
+        in: query
+        description: Park Category
+        required: false
+        schema:
+          $ref: '#/components/Categories'
+      responses:
+        "200":
+          description: successful operation
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  type: string
+                  $ref: '#/components/Parks'
         "400":
           description: bad input parameter
-  /client/login/:
+    post:
+      tags:
+      - Park
+      description: This API will add a park to the system
+      parameters: 
+      - name: Park
+        in: body
+        description: Park object
+        required: true
+        schema:
+          $ref: '#/components/schemas/ParkItem'
+      responses:
+        "201":
+          description: item created
+        "400":
+          description: "invalid input, object invalid"
+        
+  /park/{id}:
+    get:
+      tags:
+      - Park
+      description: This API will return a park in the system which has the id specified
+      parameters:
+      - name: id
+        in: path
+        description: Park id
+        required: true 
+        schema: 
+          $ref: '#/components/Parks'
+      responses:
+        "200": 
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/compnents/Parks' 
+        "400":
+          description: bad input parameter
+  
+
+  /event:
+      get:
+      tags:
+      - Event
+      description: This API will all the events in the system
+      responses:
+        "200":
+          description: successful operation
+          content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/EventItem'
+        "400":
+          description: bad input parameter  
+      post:
+        tags:
+        - Event
+        description: This API will add a new event by passing the required paramters ( only if the user is authorized to do so)
+        parameters:
+          - name: UserAuth
+            in: query
+            description: User Authorization
+            required: true 
+            schema:
+              type: boolean
+          - name:
+            in: body
+            description: Event object
+            required: true 
+            schema:
+              $ref: '#/components/schemas/EventItem'
+        responses:
+          "201":
+          description: event created
+          "400":
+            description: invalid input, object invalid
+  /event/{id}:
+    get:
+      tags:
+      - Event
+      description: This API will return an event in the system which has the id specified
+      parameters:
+      - name: id
+        in: path
+        description: Event id
+        required: true 
+        schema: 
+          $ref: '#/components/Parks'
+      
+
+  /review:
+  /report:
+  /pubrequest:
+
+  /client/updateProfile:
+      put:
+        tags: 
+        - clients
+        summary: update Profile
+        description: |
+         chage some account info |
+        parameters: 
+          - name: desciption
+            in: query
+            required: false
+            schema:
+              type: string
+          - name: name
+            in: query
+            required: false
+            schema:
+              type: string
+          - name: surname
+            in: query
+            required: false
+            schema:
+              type: string
+        responses:
+          "200" :
+            description: info updated
+  /admins/addpark:
+    
+  /admins/eventsRequests:
+    get:
+      tags: 
+      - admins
+      summary: get all events
+      description: |
+        return a list of all the events that need to be accepted |
+      operationId: eventRequests
+      responses:
+       "200":
+          description: all events returned
+          content:
+            application/json:
+              schema: 
+                type: array
+                items:  
+                  $ref: '#/components/schemas/EventItem'
+  /admins/requests:
+     get:
+      tags: 
+      - admins
+      summary: get all permmison requests
+      description: |
+        return a list of all the requests of permission  |
+      operationId: permissionRequests
+      responses:
+       "200":
+          description: all permission returned
+          content:
+            application/json:
+              schema: 
+                type: array
+                items:  
+                  $ref: '#/components/schemas/RequestItem'
+components:
+  schemas:
+    Parks:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Albere
+        x_coord:
+          type: number
+        y_coord:
+          type: number
+        rating:
+          type: number
+        description:
+          type: string
+        categories:
+          type: array
+          items:
+            $ref: '#/compenents/Categories'
+    
+    Categories:
+      type: string
+      enum: [Pet, Sport, Running, Fountain] #definire gli enum possibili
+   
+   
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/client/login/:
     get:
       tags:
       - clients
@@ -133,27 +394,6 @@ paths:
             description: unvalid input
           "500" :
             description: account already exists
-  /client/getpark:
-      get:
-        tags:
-        - clients
-        summary: get specific park
-        description: |
-          By passing a park's id you get all the park's information |
-        operationId: getark
-        parameters:
-          - name: id
-            in: query
-            required: true
-            schema:
-              type: integer
-        responses:
-          "200" :
-           description: park fouded
-           content:
-            application/json:
-              schema: 
-                $ref: '#/components/schemas/ParkItem'
   /client/addReview:
       post:
         tags: 
@@ -230,210 +470,3 @@ paths:
             description: invalid input
           "409": 
             description: already sent
-  /client/addEvent:
-      post:
-        tags:
-        - clients
-        summary: add Event
-        description: |
-          by passing the required paramters an evnet will be added ( only after an operator approve it) |
-        operationId: addEvent
-        parameters: 
-          - name: parkid
-            in: query
-            required: true
-            schema:
-              type: string
-          - name: name
-            in: query
-            required: true
-            schema:
-              type: string
-          - name: description
-            in: query
-            required: true
-            schema:
-              type: string
-          - name: date
-            in: query
-            required: true
-            schema:
-              type: string
-        responses:
-          "200" :
-            description: event added
-          "400" : 
-            description: invalid input
-  /client/updateProfile:
-      put:
-        tags: 
-        - clients
-        summary: update Profile
-        description: |
-         chage some account info |
-        parameters: 
-          - name: desciption
-            in: query
-            required: false
-            schema:
-              type: string
-          - name: name
-            in: query
-            required: false
-            schema:
-              type: string
-          - name: surname
-            in: query
-            required: false
-            schema:
-              type: string
-        responses:
-          "200" :
-            description: info updated
-  /admins/addpark:
-    post:
-      tags:
-      - admins
-      summary: adds an inventory item
-      description: Adds an item to the system
-      operationId: addInventory
-      parameters: 
-      - name: parkName
-        in: query
-        description: park's name
-        required: true
-        style: form
-        explode: true
-        schema:
-          type: string
-      - name: position
-        in: query
-        description: park's position on the map 
-        required: true
-        style: form
-        explode: true
-        schema:
-          type: string
-      - name: description
-        in: query
-        description: park's generic description
-        required: false
-        style : form
-        explode: true
-        schema:
-          type: string
-      requestBody:
-        description: Inventory item to add
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/InventoryItem'
-      responses:
-        "201":
-          description: item created
-        "400":
-          description: "invalid input, object invalid"
-        "409":
-          description: an existing item already exists
-  /admins/eventsRequests:
-    get:
-      tags: 
-      - admins
-      summary: get all events
-      description: |
-        return a list of all the events that need to be accepted |
-      operationId: eventRequests
-      responses:
-       "200":
-          description: all events returned
-          content:
-            application/json:
-              schema: 
-                type: array
-                items:  
-                  $ref: '#/components/schemas/EventItem'
-  /admins/requests:
-     get:
-      tags: 
-      - admins
-      summary: get all permmison requests
-      description: |
-        return a list of all the requests of permission  |
-      operationId: permissionRequests
-      responses:
-       "200":
-          description: all permission returned
-          content:
-            application/json:
-              schema: 
-                type: array
-                items:  
-                  $ref: '#/components/schemas/RequestItem'
-components:
-  schemas:
-    ParkItem:
-      type: object
-      properties:
-        name:
-          type: string
-          example: Albere
-        id: 
-          type: integer
-        position:
-          type: string
-        description:
-          type: string
-    EventItem:
-      type: object
-      properties:
-        name:
-          type: string
-        description:
-          type: string
-        date:
-          type: string
-    RequestItem:
-      type: object
-      properties:
-        account:
-          type: string
-        document:
-          type: string
-        description:
-          type: string
-    InventoryItem:
-      required:
-      - id
-      - manufacturer
-      - name
-      - releaseDate
-      type: object
-      properties:
-        id:
-          type: string
-          format: uuid
-          example: d290f1ee-6c54-4b01-90e6-d701748f0851
-        name:
-          type: string
-          example: Widget Adapter
-        releaseDate:
-          type: string
-          format: date-time
-          example: 2016-08-29T09:12:33.001Z
-        manufacturer:
-          $ref: '#/components/schemas/Manufacturer'
-    Manufacturer:
-      required:
-      - name
-      type: object
-      properties:
-        name:
-          type: string
-          example: ACME Corporation
-        homePage:
-          type: string
-          format: url
-          example: https://www.acme-corp.com
-        phone:
-          type: string
-          example: 408-867-5309
