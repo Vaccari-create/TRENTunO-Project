@@ -91,6 +91,12 @@ paths:
       summary: searches parks
       description: This API will return an array with all parks in the system. 
       parameters:
+      - name: name
+        in: query
+        description: Park name
+        required: false
+        schema:
+          type: string
       - name: Category
         in: query
         description: Park Category
@@ -146,8 +152,30 @@ paths:
                 $ref: '#/compnents/Parks' 
         "400":
           description: bad input parameter
-  
-
+    delete: 
+      tags:
+      - Park
+      description: This API will remove a park in the system which has the id specified
+      parameters:
+      - name: id
+        in: path
+        description: Park id
+        required: true 
+        schema:
+          $ref: '#/compenents/Parks'
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              message: "Park successfully deleted"
+              deletedPark: number of parks deleted
+        "400":
+          description: Invalid ID Format
+        "404":
+          description: Park not Found
+        "500":
+          description: Server Error
   /event:
       get:
       tags:

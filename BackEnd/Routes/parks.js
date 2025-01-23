@@ -72,6 +72,10 @@ parks.post('/', async (req, res) => {
 });
 
 parks.delete('/', async (req, res) => {
+
+
+  //delete by name?
+
   try{
     const result = await Park.deleteMany({});
 
@@ -82,7 +86,7 @@ parks.delete('/', async (req, res) => {
   } catch(err){
     res.status(500).json({ error: err.message});
   }
-})
+});
 
 
 parks.get("/:id", async (req, res) => {
@@ -97,7 +101,7 @@ parks.get("/:id", async (req, res) => {
       const park = await Park.findById(parkId);
   
       if(!park){
-        return res.status(400).json({message: 'Parco non trovato.'});
+        return res.status(404).json({message: 'park not found'});
       } 
         
       res.status(200).json(park);
@@ -105,5 +109,30 @@ parks.get("/:id", async (req, res) => {
       res.status(500).json({error: err.message});
     }
   });
+
+  parks.delete("/:id", async (req, res) => {
+    const parkId = req.params.id;
+
+    if (!mongoose.Types.ObjectId.isValid(parkId)) {
+      return res.status(400).json({ error: 'Invalid ID format.' });
+    }
+  
+    try {
+      const result = await Park.findByIdAndDelete(parkId);
+  
+      if (!result) {
+        return res.status(404).json({ error: "Park not found." });
+      }
+  
+      res.status(200).json({ message: "Park successfully deleted", deletedPark: result });
+    } catch (err) {
+      // Handle server errors
+      res.status(500).json({ error: err.message });
+    }
+  });
+
+
+
+  
 
   module.exports = parks;
