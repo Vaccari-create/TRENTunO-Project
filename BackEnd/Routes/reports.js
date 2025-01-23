@@ -32,26 +32,47 @@ reports.get('/', async (req, res) => {
 });
 
 reports.post('/', async (req, res) => {
-    const {user_id, park_id, status, description} = req.body;
+  const { user_id, park_id, status, description } = req.body;
 
-    try{
-        const newReport = new Report({
-            user_id: user_id, 
-            park_id: park_id, 
-            status: status,
-            description: description
-        });
+  if (!user_id || !mongoose.Types.ObjectId.isValid(user_id)) {
+    return res.status(400).json({ error: 'Invalid or missing user_id format.' });
+  }
 
-        await newReport.save();
+  if (!park_id || !mongoose.Types.ObjectId.isValid(park_id)) {
+    return res.status(400).json({ error: 'Invalid or missing park_id format.' });
+  }
 
-        res.status(201).json({
-            message: "report successfully created",
-            report: newReport
-        });
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+  if (typeof status !== 'boolean') {
+    return res.status(400).json({ error: 'Invalid status: must be a boolean.' });
+  }
+
+  if (typeof description !== 'string' || description.trim() === '') {
+    return res.status(400).json({ error: 'Invalid or missing description: must be a non-empty string.' });
+  }
+
+  try {
+    
+    const newReport = new Report({
+      user_id: user_id,
+      park_id: park_id,
+      status: status,
+      description: description.trim(),
+    });
+
+    await newReport.save();
+
+    res.status(201).json({
+      message: 'Report successfully created',
+      report: newReport,
+    });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
+
+/*
+
+NON HA SENSO FARE LA DELETE DI TUTTO 
 
 reports.delete('/', async (req, res) => {
   //delete by name?
@@ -67,6 +88,7 @@ reports.delete('/', async (req, res) => {
     res.status(500).json({ error: err.message});
   }
 });
+*/
 
 reports.get('/:id', async (req, res) => {
     const reportID = req.params.id;
