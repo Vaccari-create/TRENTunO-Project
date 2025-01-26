@@ -16,12 +16,16 @@ const Image = require("./models/Image");
 
 const reviews = require('./Routes/reviews');
 const parks = require('./Routes/parks');
-//const users = require('./Routes/users');
-//const reports = require('./Routes/reports');
+const reports = require('./Routes/reports');
+const events = require('./Routes/events');
+const users = require('./Routes/users');
 
 
-app.use('/api/reviews', reviews);
-app.use('/api/parks', parks);
+app.use('/api/review', reviews);
+app.use('/api/park', parks);
+app.use('/api/report', reports);
+app.use('/api/event', events);
+app.use('/api/user', users);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

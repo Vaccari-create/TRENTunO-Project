@@ -191,6 +191,23 @@ paths:
     tags:
     - Event
     description: This API will all the events in the system
+    parameters:
+    - name: user_id
+      in: query
+      description: filter events by User ID
+      required: false
+      schema:
+        type: string
+    - name: park_id
+      in: query
+      description: filter events by Park ID
+      schema:
+        type: string
+    - name: event status
+      in: query
+      required: false
+      schema:
+        type: boolean
     responses:
       "200":
         description: successful operation
@@ -201,7 +218,12 @@ paths:
             items:
               $ref: '#/components/schemas/EventItem'
       "400":
-        description: bad input parameter  
+        description: Invalid input format
+      "404":
+        description: Event not found
+      "500":
+        description: Server error
+
     post:
       tags:
       - Event
@@ -224,6 +246,9 @@ paths:
         description: event created
         "400":
           description: invalid input, object invalid
+        "500":
+          description: Server error
+
   /event/{id}:
     get:
       tags:
@@ -244,308 +269,326 @@ paths:
               schema:
                 $ref: '#/components/Events'
         "400":
-        #finish the event API
+          description: Invalid input format
+        "404":
+          description: Event not found.
+        "500":
+          description: Server error
+    put:
+      tags:
+        - Events
+      summary: Update an event's description
+      description: Allows an admin to update the description of an event.
+      parameters:
+        - name: id
+          in: path
+          description: The unique ID of the event to update
+          required: true
+          schema:
+            type: string
+        - name: user_level
+          in: query
+          description: The user level to validate admin access
+          required: true
+          schema:
+            type: string
+            enum: [Admin, User]
+      requestBody:
+        description: The updated event description
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                description:
+                  type: string
+                  example: "Updated description for the event."
+      responses:
+        "200":
+          description: Event successfully updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Event successfully updated."
+                  event:
+                    $ref: '#/components/schemas/Event'
+        "400":
+          description: Invalid input or missing required fields
+        "403":
+          description: Unauthorized access, only admins can perform this action
+        "404":
+          description: Event not found
+        "500":
+          description: Server error
+    
+    delete:
+      tags:
+      - Events
+    summary: Delete an event
+    description: Deletes the event with the specified ID.
+    parameters:
+      - name: id
+        in: path
+        description: The unique ID of the event to delete
+        required: true
+        schema:
+          type: string
+    responses:
+      "200":
+        description: Event successfully deleted
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Event successfully deleted."
+                event:
+                  $ref: '#/components/schemas/Event'
+      "400":
+        description: Invalid event ID format
+      "404":
+        description: Event not found
+      "500":
+        description: Server error
+
 
   /review:
-  get:
-    tags:
-    - Review
-    summary: Retrieves reviews
-    description: Returns all reviews or filters by user ID or park ID.
-    parameters:
-    - name: user_id
-      in: query
-      description: Filter reviews by the user ID
-      required: false
-      schema:
-        type: string
-    - name: park_id
-      in: query
-      description: Filter reviews by the park ID
-      required: false
-      schema:
-        type: string
-    responses:
-      "200":
-        description: Successful operation
+    get:
+      tags:
+      - Review
+      summary: Retrieves reviews
+      description: Returns all reviews or filters by user ID or park ID.
+      parameters:
+      - name: user_id
+        in: query
+        description: Filter reviews by the user ID
+        required: false
+        schema:
+          type: string
+      - name: park_id
+        in: query
+        description: Filter reviews by the park ID
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Review'
+        "400":
+          description: Invalid input format
+        "404":
+          description: No reviews found
+        "500":
+          description: Server error
+
+    post:
+      tags:
+      - Review
+      summary: Adds a new review
+      description: Creates a new review in the system.
+      requestBody:
+        description: The review object to be added
+        required: true
         content:
           application/json:
             schema:
-              type: array
-              items:
+              $ref: '#/components/schemas/Reviews'
+      responses:
+        "201":
+          description: Review added successfully!
+        "400":
+          description: Invalid input format
+
+  /review/{id}:
+    get:
+      tags:
+      - Review
+      summary: Retrieve a review by ID
+      description: Returns the review with the specified ID.
+      parameters:
+      - name: id
+        in: path
+        description: The unique ID of the review
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
                 $ref: '#/components/schemas/Review'
-      "400":
-        description: Invalid input parameter
+        "400":
+          description: Invalid input format
+        "404":
+          description: Review not found
+        "500":
+          description: Server error
 
-  post:
-    tags:
-    - Review
-    summary: Adds a new review
-    description: Creates a new review in the system.
-    requestBody:
-      description: The review object to be added
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/ReviewItem'
-    responses:
-      "201":
-        description: Review successfully created
-      "400":
-        description: Invalid input format
-
-  delete:
-    tags:
-    - Review
-    summary: Deletes all reviews
-    description: Removes all reviews from the system.
-    responses:
-      "200":
-        description: All reviews successfully deleted
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                message:
-                  type: string
-                  example: All reviews successfully deleted
-      "500":
-        description: Server error
-
-/review/{id}:
-  get:
-    tags:
-    - Review
-    summary: Retrieve a review by ID
-    description: Returns the review with the specified ID.
-    parameters:
-    - name: id
-      in: path
-      description: The unique ID of the review
-      required: true
-      schema:
-        type: string
-    responses:
-      "200":
-        description: Successful operation
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Review'
-      "404":
-        description: Review not found
-
-  delete:
-    tags:
-    - Review
-    summary: Deletes a review by ID
-    description: Removes the review with the specified ID from the system.
-    parameters:
-    - name: id
-      in: path
-      description: The unique ID of the review to delete
-      required: true
-      schema:
-        type: string
-    responses:
-      "200":
-        description: Review successfully deleted
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                message:
-                  type: string
-                  example: Review successfully deleted
-      "404":
-        description: Review not found
-      "500":
-        description: Server error
+    delete:
+      tags:
+      - Review
+      summary: Deletes a review by ID
+      description: Removes the review with the specified ID from the system.
+      parameters:
+      - name: id
+        in: path
+        description: The unique ID of the review to delete
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Review successfully deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Review successfully deleted
+                  reviewDeleted:
+                    $ref: '#/components/schemas/Reviews'
+        "400":
+          description: Invalid input format
+        "404":
+          description: Review not found
+        "500":
+          description: Server error
 
   /report:
-  get:
-    tags:
-    - Report
-    description: Returns all reports in the system (filterable by `user_id` and `park_id`).
-    parameters:
-    - name: user_id
-      in: query
-      description: The user ID to filter reports by
-      required: false
-      schema:
-        type: string
-    - name: park_id
-      in: query
-      description: The park ID to filter reports by
-      required: false
-      schema:
-        type: string
-    responses:
-      "200":
-        description: Successful operation
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/Reports'
-      "400":
-        description: Invalid input format
-      "500":
-        description: Server error
-
-  post:
-    tags:
-    - Report
-    description: Creates a new report in the system.
-    requestBody:
-      description: The details of the report to create
-      required: true
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/Reports'
-    responses:
-      "201":
-        description: Successfully created a new report
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                message:
-                  type: string
-                  example: Report successfully created
-                report:
+    get:
+      tags:
+      - Report
+      description: Returns all reports in the system (filterable by `user_id` and `park_id`).
+      parameters:
+      - name: user_id
+        in: query
+        description: The user ID to filter reports by
+        required: false
+        schema:
+          type: string
+      - name: park_id
+        in: query
+        description: The park ID to filter reports by
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
                   $ref: '#/components/schemas/Reports'
-      "400":
-        description: Invalid input format
-      "500":
-        description: Server error
+        "400":
+          description: Invalid input format
+        "404":
+          description: Report not found
+        "500":
+          description: Server error
 
-/report/{id}:
-  get:
-    tags:
-    - Report
-    description: Returns a specific report by its unique ID.
-    parameters:
-    - name: id
-      in: path
-      description: The unique ID of the report
-      required: true
-      schema:
-        type: string
-    responses:
-      "200":
-        description: Successful operation
+    post:
+      tags:
+      - Report
+      description: Creates a new report in the system.
+      requestBody:
+        description: The details of the report to create
+        required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Reports'
-      "400":
-        description: Invalid input format
-      "404":
-        description: Report not found
-      "500":
-        description: Server error
+      responses:
+        "201":
+          description: Successfully created a new report
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Report successfully created
+                  report:
+                    $ref: '#/components/schemas/Reports'
+        "400":
+          description: Invalid input format
+        "500":
+          description: Server error
 
-  delete:
-    tags:
-    - Report
-    description: Deletes a specific report by its unique ID.
-    parameters:
-    - name: id
-      in: path
-      description: The unique ID of the report to delete
-      required: true
-      schema:
-        type: string
-    responses:
-      "200":
-        description: Successfully deleted the report
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                message:
-                  type: string
-                  example: Report successfully deleted
-      "400":
-        description: Invalid input format
-      "404":
-        description: Report not found
-      "500":
-        description: Server error
-
-
-  /pubrequest:
-
-  /client/updateProfile:
-      put:
-        tags: 
-        - clients
-        summary: update Profile
-        description: |
-         chage some account info |
-        parameters: 
-          - name: desciption
-            in: query
-            required: false
-            schema:
-              type: string
-          - name: name
-            in: query
-            required: false
-            schema:
-              type: string
-          - name: surname
-            in: query
-            required: false
-            schema:
-              type: string
-        responses:
-          "200" :
-            description: info updated
-  /admins/addpark:
-    
-  /admins/eventsRequests:
+  /report/{id}:
     get:
-      tags: 
-      - admins
-      summary: get all events
-      description: |
-        return a list of all the events that need to be accepted |
-      operationId: eventRequests
+      tags:
+      - Report
+      description: Returns a specific report by its unique ID.
+      parameters:
+      - name: id
+        in: path
+        description: The unique ID of the report
+        required: true
+        schema:
+          type: string
       responses:
-       "200":
-          description: all events returned
+        "200":
+          description: Successful operation
           content:
             application/json:
-              schema: 
-                type: array
-                items:  
-                  $ref: '#/components/schemas/EventItem'
-  /admins/requests:
-     get:
-      tags: 
-      - admins
-      summary: get all permmison requests
-      description: |
-        return a list of all the requests of permission  |
-      operationId: permissionRequests
+              schema:
+                $ref: '#/components/schemas/Reports'
+        "400":
+          description: Invalid input format
+        "404":
+          description: Report not found
+        "500":
+          description: Server error
+
+    delete:
+      tags:
+      - Report
+      description: Deletes a specific report by its unique ID.
+      parameters:
+      - name: id
+        in: path
+        description: The unique ID of the report to delete
+        required: true
+        schema:
+          type: string
       responses:
-       "200":
-          description: all permission returned
+        "200":
+          description: Successfully deleted the report
           content:
             application/json:
-              schema: 
-                type: array
-                items:  
-                  $ref: '#/components/schemas/RequestItem'
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Report successfully deleted
+        "400":
+          description: Invalid input format
+        "404":
+          description: Report not found
+        "500":
+          description: Server error
+
 components:
   schemas:
     Parks:
@@ -592,7 +635,7 @@ components:
         description:
           type: string
           example: "Broken bench near the entrance"
-    Review:
+    Reviews:
       type: object
       properties:
         id:
@@ -688,116 +731,5 @@ components:
       responses:
         "200" : 
           description: you logged in 
-  /client/register :
-    post:
-        tags:
-        - clients
-        summary:  register an account
-        description: |
-          By passing in the appropriate parameters an user can create a personal 
-          account |
-        operationId: clientRegister
-        parameters: 
-        - name: email
-          in: query
-          required: true
-          schema:
-            type: string
-        - name: name
-          in: query
-          required: true
-          schema:
-            type: string
-        - name: surname
-          in: query
-          required: true
-          schema:
-            type: string
-        - name: password
-          in: query
-          required: true
-          schema:
-            type: string
-        responses:
-          "200" : 
-            description: account crated
-          "400" :
-            description: unvalid input
-          "500" :
-            description: account already exists
-  /client/addReview:
-      post:
-        tags: 
-        - clients
-        summary: add a Review 
-        description: |
-         By passing a text that describe yours opinion and a vote between 1 and 5 you can add a review of a specific park |
-        operationId: addRev
-        parameters: 
-          - name: text
-            in: query
-            required: false
-            schema:
-              type: string
-          - name: vote
-            in: query
-            required: true
-            schema:
-              type: integer
-        responses:
-          "200" :
-            description: item added
-          "400" :
-            description: invalid input
-          "409" :
-            description: item alredy exists
-  /client/removeReview:
-      delete:
-        tags: 
-        - clients
-        summary: delete a Review
-        description: |
-          By pressing a button the user can delete his own review |
-        operationId: delRev
-        parameters: 
-          - name: id
-            in: query
-            required: true
-            schema:
-              type: integer
-        responses:
-          "200" :
-            description: item removed
-          "500" :
-            description: internal server error
-  /client/sendPermissionRequest:
-      post:
-        tags: 
-        - clients
-        summary: send a permission request
-        description: |
-          By passing all the paramters a request to get the permission to publishing events will be send |
-        operationId: sendReq
-        parameters: 
-        - name: accountid
-          in: query
-          required: true
-          schema:
-            type: string
-        - name: text
-          in: query
-          required: true
-          schema:
-            type: string
-        - name: document
-          in: query
-          required: true
-          schema:
-            type: string
-        responses: 
-          "200": 
-            description: permission request sent
-          "400":
-            description: invalid input
-          "409": 
-            description: already sent
+  
+  

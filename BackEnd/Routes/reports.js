@@ -24,6 +24,10 @@ reports.get('/', async (req, res) => {
   
     try {
       const reports = await Report.find(filter);
+
+      if(!reports){
+        res.status(404).json({ message: 'Report not found'});
+      }
   
       res.status(200).json(reports);
     } catch (err) {
@@ -42,11 +46,11 @@ reports.post('/', async (req, res) => {
     return res.status(400).json({ error: 'Invalid or missing park_id format.' });
   }
 
-  if (typeof status !== 'boolean') {
+  if (!status || typeof status !== 'boolean') {
     return res.status(400).json({ error: 'Invalid status: must be a boolean.' });
   }
 
-  if (typeof description !== 'string' || description.trim() === '') {
+  if (!description || typeof description !== 'string' || description.trim() === '') {
     return res.status(400).json({ error: 'Invalid or missing description: must be a non-empty string.' });
   }
 
@@ -70,26 +74,6 @@ reports.post('/', async (req, res) => {
   }
 });
 
-/*
-
-NON HA SENSO FARE LA DELETE DI TUTTO 
-
-reports.delete('/', async (req, res) => {
-  //delete by name?
-
-  try{
-    const result = await Report.deleteMany({});
-
-    res.status(200).json({
-      message: "All parks have been successful delete", 
-      deletedCount: result.deletedCount,                // Number of reports deleted
-    });
-  } catch(err){
-    res.status(500).json({ error: err.message});
-  }
-});
-*/
-
 reports.get('/:id', async (req, res) => {
     const reportID = req.params.id;
 
@@ -98,13 +82,11 @@ reports.get('/:id', async (req, res) => {
     }
 
     try{
-        
         const report = Report.findById(reportID);
 
         if(!report){
-            res.status(404).json({ message: 'report not found'})
+            res.status(404).json({ message: 'report not found'});
         }
-
         res.status.json(report);
     } catch(err) {
         res.status(500).json({ error: err.message });
@@ -119,7 +101,6 @@ reports.delete('/:id', async (req, res) => {
     }
 
     try{
-
         const result = await Report.findByIdAndDelete(reportID);
         
         if(!result){
