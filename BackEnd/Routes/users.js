@@ -48,32 +48,12 @@ users.get("/", async (req, res) => {
     }
   });
 
-users.get("/:id", async (req, res) => {
-  const { userID } = req.params.id;
 
-  if (!mongoose.Types.ObjectId.isValid(userID)) {
-    return res.status(400).json({ error: "Invalid user ID format." });
-  }
-
-  try {
-    const user = await User.findById(userID);
-
-    if (!user) {
-      return res.status(404).json({ message: "User not found." });
-    }
-
-    res.status(200).json(user);
-  } catch (err) {
-    console.error("Error fetching user:", err);
-    res.status(500).json({ error: "An error occurred while fetching the user." });
-  }
-});
-
-users.post("/", async (req,res) => {
+  users.post("/", async (req,res) => {
     try{
         const ExistingUser = await User.find({email: req.body.email});
         if(ExistingUser.length > 0){
-            return res.status(500).json({message: "There is an existing account!"});
+            return res.status(409).json({message: "There is an existing account!"});
         }
         else{
             console.log(req.body.name);
@@ -96,7 +76,28 @@ users.post("/", async (req,res) => {
         return res.status(500).json({error: err.message});
 
     }
-})
+});
+
+users.get("/:id", async (req, res) => {
+  const { userID } = req.params.id;
+
+  if (!mongoose.Types.ObjectId.isValid(userID)) {
+    return res.status(400).json({ error: "Invalid user ID format." });
+  }
+
+  try {
+    const user = await User.findById(userID);
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found." });
+    }
+
+    res.status(200).json(user);
+  } catch (err) {
+    console.error("Error fetching user:", err);
+    res.status(500).json({ error: "An error occurred while fetching the user." });
+  }
+});
 
 
 users.delete("/:id", async (req, res) => {
@@ -124,7 +125,7 @@ users.delete("/:id", async (req, res) => {
   });
 const { ObjectId } = require('mongodb'); // Importa ObjectId
 
-users.put("/update/:id", async (req, res) => {
+users.put("/:id", async (req, res) => {
     try {
         // Estrai l'ID e i campi da aggiornare dal body della richiesta
         const id = new ObjectId(req.params.id);
@@ -148,8 +149,10 @@ users.put("/update/:id", async (req, res) => {
         }
     } catch (error) {
         // Gestisci eventuali errori
-        res.status(500).json({ message: "An error occurred", error: error.message });
+        res.status(500).json({ error: error.message });
     }
 });
+
+users.put("/cambiaPassword/:id", async (req, res) => {});
 
 module.exports = users;
