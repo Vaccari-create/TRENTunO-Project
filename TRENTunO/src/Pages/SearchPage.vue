@@ -2,6 +2,12 @@
 import Navbar from '@/components/Navbar.vue';
 import ParkSearchItem from '@/components/ParkSearchItem.vue';
 import MainFooter from '@/components/MainFooter.vue';
+import { ref } from 'vue';
+
+const parks = ref(null);
+
+fetch('http://localhost:3030/api/parks/').then(res => res.json())
+    .then(data => parks.value = data)
 
 
 </script>
@@ -17,10 +23,8 @@ import MainFooter from '@/components/MainFooter.vue';
                 </span>
                 <input type="text" name="serch" class=" block text-lg p-1 w-40 rounded border-gray-200 border-2">
             </div>
-            <ParkSearchItem name="Albere" id="1234"/>
-            <ParkSearchItem name="Audi" id="6438"/>
-            <ParkSearchItem name="Port" id="20283"/>
-            <ParkSearchItem name="Londra" id="1869"/>
+            <ParkSearchItem v-for="item in parks" :name="item.name" :id="item._id"/>
+           
         </div>
      </div>
     </div>

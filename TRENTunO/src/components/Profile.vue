@@ -1,5 +1,29 @@
 <script setup>
 import Review from './Review.vue';
+import { ref } from 'vue';
+
+import { getCookie } from '@/main';
+import { router } from '@/main';
+let userId = getCookie("userId");
+
+console.log(userId)
+
+if(userId == ""){
+    alert("Login non effettuato : " + userId )
+    router.push('/login')
+}
+
+const revs = ref(null);
+const unames = ref([])
+fetch('http://localhost:3030/api/reviews/?userId='+userId).then(res => res.json())
+    .then(data => {
+        revs.value = data
+        for (let index = 0; index < revs.value.length; index++) {
+            fetch('http://localhost:3030/api/parks/'+revs.value[index].parkId).then(res => res.json())
+                    .then(data => unames.value[index] = data) 
+        }
+    }
+)
 </script>
 
 <template>
@@ -23,6 +47,7 @@ import Review from './Review.vue';
             <textarea name="description" class=" block text-lg p-1 w-full rounded border-gray-200 border-2 h-24"></textarea>
         </div>
         <button class=" text-xl font-semibold p-3 px-8 self-end rounded-full bg-slate-500 text-white">Salva</button>
-        <Review name="Alan Turing" text="loabiahdkakb fakbfkabk ilhiahbc baifbaksbcibwkj bjabfkbwkjaj"/>
+        <Review v-for="(item,index) in revs" :name="unames[index].name" :text="item.Description"/> 
+        
     </div>
 </template>

@@ -3,7 +3,7 @@ import Navbar from '@/components/Navbar.vue';
 import MainFooter from '@/components/MainFooter.vue';
 import EventRequestItem from '@/components/EventRequestItem.vue';
 import { ref } from 'vue';
-const items = ref([{ title: 'Breganze',place:'',date:'11/11/1111', text: 'Un gruppo di castori ha bloccato il fiume. SI sono fatti una casa sti immigrati'}, { name: 'Venezia',place:'',date:'0/13/0', text: ' Ho trovato una bomba atomica russa sotto il canal Grande' }])
+const items = ref([{ title: 'Breganze',place:'',date:'11/11/1111', text: 'Voglio fare una partiata a calcio'}, { name: 'Venezia',place:'',date:'0/13/0', text: ' Esempio ancora da definire.' }])
 </script>
 
 <template>
