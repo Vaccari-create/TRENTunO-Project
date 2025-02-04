@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const User = require('../Entities/User');
+const User = require('../models/User');
 
 const DB = process.env.DB;
 

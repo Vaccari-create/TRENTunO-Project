@@ -1,23 +1,29 @@
 const User = require("../models/User");
-const users = express();
 const jwt = require('jsonwebtoken');
 const tokenChecker = require('../tokenChecker');
 const express = require('express');
 const mongoose = require ('mongoose');
+const users = express();
 
 users.post('/authentications', async (req, res) => {
     const { username, password } = req.body;
-    const user = await User.findOne({ username, password }).exec()
-    if (user) {
-        const token = jwt.sign({username: user.username}, SECRET);
-        res.json({
-            success: true,
-            message: 'Authentication success',
-            token: token
-        });
-    } else {
-        res.json({ success: false, message: 'Authentication failed' });
-    }
+
+    const user = await User.findOne({ username }).exec()
+
+    if (!user)
+      res.json({success:false,message:'User not found'});
+    if (user.password!=password) 
+      res.json({success:false,message:'Wrong password'});
+
+
+    var payload = { email: user.email, id: user._id, other_data: encrypted_in_the_token }
+    var options = { expiresIn: 86400 } // expires in 24 hours
+    const token = jwt.sign(payload, process.env.SUPER_SECRET, options);
+    res.json({
+        success: true,
+        message: 'Authentication success',
+        token: token
+    });
 } );
 
 

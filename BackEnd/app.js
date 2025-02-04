@@ -10,7 +10,7 @@ var app = express();
 app.use(cors());
 app.use(morgan("tiny"));
 app.use(express.json())
-const port = 8080;
+const port = 3030;
 const Image = require("./models/Image");
 
 

@@ -83,14 +83,14 @@ events.post('/', async (req, res) => {
 
 // GET /events/:id
 events.get('/:id', async (req, res) => {
-    const eventID = req.params.id;
+    const event_id = req.params;
   
-    if (!mongoose.Types.ObjectId.isValid(eventID)) {
+    if (!mongoose.Types.ObjectId.isValid(event_id)) {
       return res.status(400).json({ error: 'Invalid event ID format.' });
     }
   
     try {
-      const event = await Event.findById(eventID);
+      const event = await Event.findById(event_id);
   
       if (!event) {
         return res.status(404).json({ message: 'Event not found.' });
@@ -106,7 +106,7 @@ events.get('/:id', async (req, res) => {
   
 
 events.put('/:id', async (req, res) => {
-  const { id } = req.params;
+  const { event_id } = req.params;
   const { user_level } = req.query;
   const { description } = req.body;
 
@@ -114,7 +114,7 @@ events.put('/:id', async (req, res) => {
     return res.status(403).json({ message: 'Only admins can update events.' });
   }
 
-  if (!mongoose.Types.ObjectId.isValid(id)) {
+  if (!mongoose.Types.ObjectId.isValid(event_id)) {
     return res.status(400).json({ error: 'Invalid event ID format.' });
   }
 
@@ -124,7 +124,7 @@ events.put('/:id', async (req, res) => {
 
   try {
     const updatedEvent = await Event.findByIdAndUpdate(
-      id,
+      event_id,
       { description },
       { new: true }
     );
@@ -144,7 +144,7 @@ events.put('/:id', async (req, res) => {
 });
 
 events.delete('/:id', async (req, res) => {
-  const { id } = req.params;
+  const { event_id } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({ message: 'Invalid event ID format.' });

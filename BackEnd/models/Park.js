@@ -8,5 +8,5 @@ module.exports = mongoose.model('Park',new Schema({
     categories: {type: [Number], default: -1}, //categorie di persone a cui è adatto
     rating: {type: Number, default: 0}, //media delle recensioni (se presenti)
     description: {type: String, required: true},  //descrizione del posto
-    services: {type: [Enums.categories], default: [] }  //ogni servizio presente nel parco avrà un codice identificativo
+    services: {type: [String], enum: ["Pet", "Sport", "Running", "Fountain"], default: [] }  //ogni servizio presente nel parco avrà un codice identificativo
 }))

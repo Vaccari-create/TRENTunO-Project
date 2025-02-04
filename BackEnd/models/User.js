@@ -6,7 +6,7 @@ module.exports = mongoose.model('User', new Schema({
     surname: {type: String, required: true}, 
 	email: {type: String, required: true},
     password: {type: String, required: true},
-    user_level: {type: Enums.user_level, required: true},
+    user_level: {type: String, required: true},
     auth: {type: String, default: false},
     
 }));
