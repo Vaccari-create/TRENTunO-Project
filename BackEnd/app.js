@@ -21,11 +21,11 @@ const events = require('./Routes/events');
 const users = require('./Routes/users');
 
 
-app.use('/api/review', reviews);
-app.use('/api/park', parks);
-app.use('/api/report', reports);
-app.use('/api/event', events);
-app.use('/api/user', users);
+app.use('/api/reviews', reviews);
+app.use('/api/parks', parks);
+app.use('/api/reports', reports);
+app.use('/api/events', events);
+app.use('/api/users', users);
 
 app.use((err, req, res, next) => {
   console.error(err.stack);
