@@ -11,7 +11,7 @@ const props = defineProps(['user','text'])
             <p>{{ props.text }}</p>
         </div>
         <div class=" flex items-center">
-            <button class=" text-xl font-semibold p-3 px-8  rounded-full bg-red-300 text-black">Rimuovi</button>
+            <button class=" text-xl font-semibold p-3 px-8  rounded-full bg-red-300 text-black">Letto</button>
         </div>
     </div>
 </template>

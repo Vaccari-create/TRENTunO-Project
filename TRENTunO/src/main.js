@@ -1,4 +1,4 @@
-import { createApp } from 'vue'
+import { createApp, reactive, ref } from 'vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import './index.css'
 import App from './App.vue'
@@ -30,22 +30,10 @@ export const router = createRouter({
     ]
 });
 
-export function getCookie(cname) {
-    let name = cname + "=";
-    let decodedCookie = decodeURIComponent(document.cookie);
-    let ca = decodedCookie.split(';');
-    for(let i = 0; i <ca.length; i++) {
-      let c = ca[i];
-      while (c.charAt(0) == ' ') {
-        c = c.substring(1);
-      }
-      if (c.indexOf(name) == 0) {
-        return c.substring(name.length, c.length);
-      }
-    }
-    return "";
-  }
+
  
+
+
 const app = createApp(App)
 
 app.use(router);

@@ -4,12 +4,10 @@ import MainFooter from '@/components/MainFooter.vue';
 import EventItem from '@/components/EventItem.vue';
 import Review from '@/components/Review.vue';
 import { ref } from 'vue';
+import { loggedUser } from '@/login';
 
-import { getCookie } from '@/main';
 import { router } from '@/main';
-let userId = getCookie("userId");
 
-console.log(userId)
 
 
 const props = defineProps(['id']);
@@ -26,11 +24,12 @@ fetch('http://localhost:3030/api/parks/'+props.id).then(res => res.json())
 
 const revs = ref("null");
 const unames = ref([])
-fetch('http://localhost:3030/api/reviews/?parkId='+props.id).then(res => res.json())
+fetch('http://localhost:3030/api/reviews/?park_id='+props.id).then(res => res.json())
     .then(data => {
+        console.log(data)
         revs.value = data
         for (let index = 0; index < revs.value.length; index++) {
-            fetch('http://localhost:3030/api/users/'+revs.value[index].userId).then(res => res.json())
+            fetch('http://localhost:3030/api/users/'+revs.value[index].user_id).then(res => res.json())
                     .then(data => unames.value[index] = data) 
         }
     }
@@ -42,34 +41,35 @@ fetch('http://localhost:3030/api/events/?park_id='+props.id).then(res => res.jso
     .then(data => eves.value = data)
 
 function submit() {
-    if(userId == ""){
-    alert("Login non effettuato : " + userId )
-    router.push('/login')
-}
+    console.log(loggedUser.id)
         const requestOptions = {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ userID: userId, parkID: props.id, Rating: rnumber.value, Description: rdescription.value})
+    headers: { "Content-Type": "application/json" , "token" : loggedUser.token },
+    body: JSON.stringify({ user_id: loggedUser.id, park_id: props.id, Rating: rnumber.value, Description: rdescription.value})
             };
+    try{
             fetch("http://localhost:3030/api/reviews", requestOptions)
                 .then(response => response.json())
-                .then(data =>  data );
-    location.reload();
+                .then(data => alert(data.message));
+    }catch(error){
+        alert(error.message)
+    }
+    rnumber.value = ""
+    rdescription.value = ""
 }
 
 function rep(){
-    if(userId == ""){
-    alert("Login non effettuato : " + userId )
-    router.push('/login')
-}
+    console.log(loggedUser.id)
+
     const requestOptions = {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ user_id: userId, park_id: props.id, status: true, description: rreport.value})
+    headers: { "Content-Type": "application/json", "token" : loggedUser.token },
+    body: JSON.stringify({ user_id: loggedUser.id, park_id: props.id, status: true, description: rreport.value})
             };
             fetch("http://localhost:3030/api/reports", requestOptions)
                 .then(response => response.json())
                 .then(data =>  data );
+    rreport.value = ""
 }
 </script>
 
@@ -117,7 +117,7 @@ function rep(){
             </div>
             <button @click="submit" class=" block text-xl font-semibold px-8 p-3 rounded-full bg-slate-500 text-white" >Submit</button>
         </div>
-        <Review v-for="(item,index) in revs" :name="unames[index].name" :text="item.Description"/> 
+        <Review v-for="(item,index) in revs" :name="unames[index].name" :text="item.Description" :rating="item.Rating"/> 
         <div class=" text-xl max-w-fit font-bold p-4 rounded-md bg-red-200">Add a Report :</div>
         <div class=" flex justify-between items-center">
                 <div>

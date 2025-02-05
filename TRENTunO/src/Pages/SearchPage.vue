@@ -14,7 +14,7 @@ fetch('http://localhost:3030/api/parks/').then(res => res.json())
 
 <template>
     <Navbar/>
-    <div class=" bg-[url(https://external-preview.redd.it/QqAlTmY6VydeStvYDocXNkPamjKPe8zZUwVzjN689L4.jpg?auto=webp&s=789909d1e867095ae7ad0afa3f30026b7e7b7a8a)] h-svh">
+    <div class=" bg-[url('@/Pages/CartinaParchi.jpg')] h-full bg-cover ">
         <div class=" flex justify-end">
             <div class=" flex flex-col gap-10 mt-10 mr-10">
             <div class=" bg-lime-200 p-3 rounded-sm ">

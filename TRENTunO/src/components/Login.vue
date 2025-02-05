@@ -1,20 +1,21 @@
 <script setup>
 import { ref } from 'vue';
 import { router } from '@/main';
+import { setLoggedUser } from '@/login';
 const rpass = ref(null)
 const remail = ref(null)
 function login(){
   const requestOptions = {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ email: "JoaoVictor31@admin.com", password: "Admin31"})
+    body: JSON.stringify({ email: remail.value, password: rpass.value})
             };
             fetch("http://localhost:3030/api/users/authentications", requestOptions)
                 .then(response => response.json())
                 .then(data =>  {
                 console.log(data) 
                   if(data.success){
-                    document.cookie = "userId="+data.userId;
+                    setLoggedUser(data)
                     router.push("/")
                   }else{
                     alert("Wrong email or password")

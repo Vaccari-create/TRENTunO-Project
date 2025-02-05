@@ -1,15 +1,14 @@
 <script setup>
-import IconEcosystem from './icons/IconEcosystem.vue';
 </script>
 
 <template>
     <nav class=" bg-black flex items-center justify-evenly p-10 lg:px-8" aria-label="Global">
         <div class="flex flex-col gap-2 text-gray-400 text-2xl" >
             <div>
-                Making the world a worst place.
+               We provide solution for hot day through the green areas of Trento
             </div>
             <div>
-                Reminding that obesity is a choice  
+                Encourage a stable, happy and healthy community  
             </div>
         </div>
         <div class="flex flex-col gap-2 text-gray-400">

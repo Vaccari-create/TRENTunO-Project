@@ -1,15 +1,14 @@
 <script setup>
 import { ref } from 'vue';
-import { getCookie } from '@/main';
+import { loggedUser } from '@/login';
 import { router } from '@/main';
-let userId = getCookie("userId");
 
-console.log(userId)
-
-if(userId == ""){
-    alert("Login non effettuato : " + userId )
+if(loggedUser.id == undefined){
+    alert("Login non effettuato " )
     router.push('/login')
 }
+
+
 
 const parks = ref(null);
 const rid = ref(null);
@@ -20,16 +19,22 @@ fetch('http://localhost:3030/api/parks/').then(res => res.json())
     .then(data => parks.value = data)
 
 function submit() {
-        // console.log("--------")
-        const requestOptions = {
+    if(loggedUser.auth == false){
+        alert("Non hai il permesso")
+        router.push('/permission')
+    }
+    const requestOptions = {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ user_id: userId, park_id: rid.value, title: rtitle.value, date: rdate.value, description: rdescription.value})
+    headers: { "Content-Type": "application/json", "token" : loggedUser.token },
+    body: JSON.stringify({ user_id: loggedUser.id, park_id: rid.value, title: rtitle.value, date: rdate.value, description: rdescription.value})
             };
-            fetch("http://localhost:3030/api/events?auth=true", requestOptions)
+            fetch("http://localhost:3030/api/events?auth="+loggedUser.auth, requestOptions)
                 .then(response => response.json())
                 .then(data =>  data );
-    location.reload();
+    rid.value = null
+    rdescription.value = null
+    rdate.value = null
+    rtitle.value = null
 }
 </script>
 

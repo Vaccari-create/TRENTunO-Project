@@ -7,7 +7,7 @@ const props = defineProps(['title','place','date','text'])
         <div class=" font-semibold">
             {{ props.title }} 
         </div>
-        <div> <b>Place</b> : Fronte</div>
+        <div> <b>Place</b> : {{props.place}}</div>
         <div><b>Date</b> : {{ props.date }}</div>
         <div class=" p-3 max-h-28 overflow-scroll">
             <p>{{ props.text }}</p>

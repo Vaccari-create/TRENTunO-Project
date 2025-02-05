@@ -1,35 +1,38 @@
 <script setup>
 import Review from './Review.vue';
 import { ref } from 'vue';
+import { loggedUser, clearLoggedUser } from '@/login';
 
-import { getCookie } from '@/main';
 import { router } from '@/main';
-let userId = getCookie("userId");
 
-console.log(userId)
-
-if(userId == ""){
-    alert("Login non effettuato : " + userId )
+console.log(loggedUser)
+if(loggedUser.id == undefined){
+    alert("Login non effettuato " )
     router.push('/login')
 }
 
 const revs = ref(null);
 const unames = ref([])
-fetch('http://localhost:3030/api/reviews/?userId='+userId).then(res => res.json())
+fetch('http://localhost:3030/api/reviews/?user_id='+loggedUser.id).then(res => res.json())
     .then(data => {
         revs.value = data
         for (let index = 0; index < revs.value.length; index++) {
-            fetch('http://localhost:3030/api/parks/'+revs.value[index].parkId).then(res => res.json())
+            fetch('http://localhost:3030/api/parks/'+revs.value[index].park_id).then(res => res.json())
                     .then(data => unames.value[index] = data) 
         }
     }
 )
+
+function logout(){
+    clearLoggedUser()
+    router.push('/')
+}
 </script>
 
 <template>
     <div class=" flex flex-col ml-24 max-w-screen-sm gap-5 mt-10">
         <div class=" flex gap-5 items-center">
-            <img class=" block rounded-full w-20 h-20 object-center" src="https://www.afnews.info/wordpress/wp-content/uploads/2013/12/100x140_EARL1-705x1024.jpg" alt="">  
+            <img class=" block rounded-full w-20 h-20 object-center" src="https://arcticroadtrips.com/wp-content/uploads/2024/07/Aurora-Tour-Rovaniemi-finland-768x512.jpg" alt="">  
             <button class=" text-xl font-semibold p-3 px-8  rounded-full bg-lime-200 text-black">Imposta </button>
             <input type="file" class=" hidden" name="my_file" id="my-file">
             <button class=" text-xl font-semibold p-3 px-8  rounded-full bg-red-300 text-black">Rimuovi</button>
@@ -47,7 +50,8 @@ fetch('http://localhost:3030/api/reviews/?userId='+userId).then(res => res.json(
             <textarea name="description" class=" block text-lg p-1 w-full rounded border-gray-200 border-2 h-24"></textarea>
         </div>
         <button class=" text-xl font-semibold p-3 px-8 self-end rounded-full bg-slate-500 text-white">Salva</button>
-        <Review v-for="(item,index) in revs" :name="unames[index].name" :text="item.Description"/> 
+        <button @click="logout" class=" text-xl font-semibold p-3 px-8 self-end rounded-full bg-red-300 text-white">LogOut</button>
+        <Review v-for="(item,index) in revs" :name="unames[index].name" :text="item.Description" :rating="item.Rating"/> 
         
     </div>
 </template>
