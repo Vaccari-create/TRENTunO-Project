@@ -103,6 +103,12 @@ paths:
           required: true 
           schema:
               $ref: '#/components/schemas/Users'
+        - name: id
+          in: query
+          description: Admin id
+          required: true 
+          schema:
+              $ref: '#/components/schemas/Users'
       responses:
         "200":
           description: Successful operation
@@ -141,7 +147,7 @@ paths:
           description: No user found with the provided ID
         "500":
           description: Server error
-  /users/authentications:
+  /users/authentication:
     post:
       tags:
         - Users
@@ -211,7 +217,7 @@ paths:
                   error:
                     type: string
                     example: "Internal server error"
-  /users/changePassword:
+  /users/changePassword/{id}:
     put:
       put:
       tags:
@@ -233,12 +239,12 @@ paths:
         "200":
           description: Successful operation
         "400":
-          description: No fields to update provided
+          description: Bad input format
         "404":
           description: No user found with the provided ID
         "500":
           description: Server error
-  /users/changeAuth:
+  /users/changeAuth/{id}:
     put:
       put:
       tags:
@@ -261,7 +267,9 @@ paths:
         "200":
           description: Successful operation
         "400":
-          description: No fields to update provided
+          description: Bad input format
+        "403":
+          description: Only Admins can change authorization status
         "404":
           description: No user found with the provided ID
         "500":
@@ -301,6 +309,12 @@ paths:
       tags:
       - Park
       description: Adds a new park to the system.
+      - name: id
+        in: query
+        description: Admin id
+        required: true 
+        schema:
+          type: string
       requestBody:
         description: The park object to be added
         required: true
@@ -313,6 +327,8 @@ paths:
           description: Park successfully created
         "400":
           description: Invalid input format
+        "403":
+          description: Only admins can change authorization status.
 
   /parks/{id}:
     get:

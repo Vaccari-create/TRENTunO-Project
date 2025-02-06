@@ -7,6 +7,6 @@ module.exports = mongoose.model('User', new mongoose.Schema({
 	email: {type: String, required: 'true'},
     password: {type: String, required: 'true'},
     user_level: {type: String, enum: ["Admin", "Client"], required: 'true'},
-    auth: {type: String, default: false},
+    auth: {type: Boolean, default: false},
     
 }));

@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
-const User = require('../Entities/User');
+const User = require('./models/User');
 
 const DB = process.env.DB;
+console.log(DB);
 
-mongoose.connect('mongodb+srv://Admin:Admin31@cluster31.d2mdy.mongodb.net/TRENTunO').then( async () => {
+mongoose.connect("mongodb+srv://Admin:Admin31@cluster31.d2mdy.mongodb.net/Testing").then( async () => {
     
     console.log('Connected to MongoDB');
     const user = await new User()
@@ -12,6 +13,7 @@ mongoose.connect('mongodb+srv://Admin:Admin31@cluster31.d2mdy.mongodb.net/TRENTu
     user.email = "JoaoVictor31@admin.com";
     user.password = "Admin31";
     user.auth = true;
+    user.user_level = "Admin";
     await user.save();
 
     console.log('User created');

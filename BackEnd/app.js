@@ -12,7 +12,7 @@ app.use(cors());
 app.use(morgan("tiny"));
 app.use(express.json())
 const port = 3030;
-const Image = require("./models/Image");
+const DB = process.env.DB;
 
 
 const reviews = require('./Routes/reviews');
@@ -39,5 +39,7 @@ app.use((err, req, res, next) => {
 
 
 
-app.listen(port,()=>{console.log('Example app listening on port ' + port)})
-mongoose.connect('mongodb+srv://Admin:Admin31@cluster31.d2mdy.mongodb.net/TRENTunO');
+const server = app.listen(port,()=>{console.log('Example app listening on port ' + port)})
+mongoose.connect("mongodb+srv://Admin:Admin31@cluster31.d2mdy.mongodb.net/Testing");
+
+module.exports = app;

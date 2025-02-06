@@ -48,9 +48,17 @@ parks.get('/', async (req, res) => {
 });
 
 parks.post('/', tokenChecker, async (req, res) => {
+
   const {name, x_coord, y_coord, rating, description, categories} = req.body;
+  const { adminId } = req.query;
 
   try {
+
+    const admin = await User.findById(adminId);
+    if (!admin || admin.user_level !== "Admin") {
+        return res.status(403).json({ message: "Only admins can change authorization status." });
+    }
+
     const newPark = new Park({
       name: name, 
       x_coord: x_coord, 
@@ -71,20 +79,6 @@ parks.post('/', tokenChecker, async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
-
-parks.delete('/', async (req, res) => {
-  try{
-    const result = await Park.deleteMany({});
-
-    res.status(200).json({
-      message: "All parks have been successful delete", 
-      deletedCount: result.deletedCount,                // Number of parks deleted
-    });
-  } catch(err){
-    res.status(500).json({ error: err.message});
-  }
-});
-
 
 parks.get("/:id", async (req, res) => {
     

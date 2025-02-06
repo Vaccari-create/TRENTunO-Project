@@ -1,25 +1,26 @@
 const User = require("../models/User");
 const jwt = require('jsonwebtoken');
-const tokenChecker = require('../tokenChecker');
 const express = require('express');
 const mongoose = require ('mongoose');
-const users = express();
+const tokenChecker = require('../tokenChecker');
 
-users.post("/authentications", async (req, res) => {
+const users = express.Router();
+
+
+users.post("/authentication", async (req, res) => {
   const { email, password } = req.body;
 
   try {
-      // Check if user exists and the password matches
+      
       const user = await User.findOne({ email, password }).exec();
       if (!user) {
           return res.status(401).json({ success: false, message: "Authentication failed" });
       }
 
-      // Generate JWT token
       const token = jwt.sign(
           { userId: user._id, email: user.email, auth: user.auth },
           process.env.SUPER_SECRET,
-          { expiresIn: 8640000 }
+          { expiresIn: 86400 }
       );
 
       res.status(200).json({
@@ -95,15 +96,15 @@ users.get("/", async (req, res) => {
 });
 
 users.get("/:id", async (req, res) => {
-  const userID  = req.params.id;
-  // console.log(userID)
+  const { id } = req.params;
+  console.log(id);
 
-  if (!mongoose.Types.ObjectId.isValid(userID)) {
+  if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({ error: "Invalid user ID format." });
   }
 
   try {
-    const user = await User.findById(mongoose.Types.ObjectId.createFromHexString(userID));
+    const user = await User.findById(id);
 
     if (!user) {
       return res.status(404).json({ message: "User not found." });
@@ -117,15 +118,21 @@ users.get("/:id", async (req, res) => {
 });
 
 
-users.delete("/:id", async (req, res) => {
-    const userID = req.params.id;
-  
-    if (!mongoose.Types.ObjectId.isValid(userID)) {
+users.delete("/:id", tokenChecker, async (req, res) => {
+    const { id } = req.params;
+    const { adminId } = req.query;
+
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ error: "Invalid user ID format." });
     }
+
+    const admin = await User.findById(adminId);
+      if (!admin || admin.user_level !== "Admin") {
+          return res.status(403).json({ message: "Only admins can change authorization status." });
+      }
   
     try {
-      const deletedUser = await User.findByIdAndDelete(mongoose.Types.ObjectId.createFromHexString(userID));
+      const deletedUser = await User.findByIdAndDelete(id);
   
       if (!deletedUser) {
         return res.status(404).json({ message: "User not found." });
@@ -140,34 +147,91 @@ users.delete("/:id", async (req, res) => {
       res.status(500).json({ error: "An error occurred while deleting the user." });
     }
   });
-const { ObjectId } = require('mongodb'); // Importa ObjectId
 
-users.put("/:id", async (req, res) => {
+users.put("/:id", tokenChecker, async (req, res) => {
     try {
-        const id = new ObjectId(req.params.id);
+        const { id } = req.params;
         const updateFields = req.body.updateFields;
 
         if (!updateFields || Object.keys(updateFields).length === 0) {
             return res.status(400).json({ message: "No fields to update provided" });
         }
+        
+        const updated = await User.findByIdAndUpdate(id, { $set: updateFields }, { new: true });
 
-        const updated = await User.updateOne(
-            { _id: id },
-            { $set: updateFields }
-        );
-
-        if (updated.modifiedCount === 1) {
-            res.status(200).json({ message: "User updated successfully" });
+        if (!updated) {
+          res.status(404).json({ message: "No user found with the provided ID" });
         } else {
-            res.status(404).json({ message: "No user found with the provided ID" });
+          res.status(200).json({ message: "User updated successfully" });
         }
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 });
 
-users.put("/changePassword/:id", async (req, res) => {});
-users.put("/changeAuth/:id", async (req, res) => {});
+users.put("/changePassword/:id", tokenChecker,  async (req, res) => {
+  const { id } = req.params;
+  const { password } = req.body;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: "Invalid user ID format." });
+  }
+
+  if (!password || password.trim() === "") {
+      return res.status(400).json({ message: "New password is required." });
+  }
+
+  try {
+      const user = await User.findById(id);
+      if (!user) {
+          return res.status(404).json({ message: "No user found with the provided ID." });
+      }
+
+      user.password = password;
+      await user.save();
+
+      res.status(200).json({ message: "Password successfully updated." });
+  } catch (err) {
+      console.error("Error updating password:", err);
+      res.status(500).json({ message: "Server error." });
+  }
+});
+
+
+users.put("/changeAuth/:id", tokenChecker, async (req, res) => {
+
+  //This API is related to the PubPermission request. Once the Admin conceives the authorization
+  //to the user to publish events, the "auth" field of the user is put to true.
+
+  const { id } = req.params;
+  const { adminId } = req.query;
+
+  if (!mongoose.Types.ObjectId.isValid(id) || !mongoose.Types.ObjectId.isValid(adminId)) {
+      return res.status(400).json({ message: "Invalid user ID or admin ID format." });
+  }
+
+  try {
+      
+      const admin = await User.findById(adminId);
+      if (!admin || admin.user_level !== "Admin") {
+          return res.status(403).json({ message: "Only admins can change authorization status." });
+      }
+
+      const user = await User.findByIdAndUpdate(id, { auth: true }, { new: true });
+
+      if (!user) {
+          return res.status(404).json({ message: "No user found with the provided ID." });
+      }
+
+      res.status(200).json({
+          message: "User authorization status successfully updated.",
+          user,
+      });
+  } catch (err) {
+      console.error("Error updating authorization status:", err);
+      res.status(500).json({ message: "Server error." });
+  }
+});
 
 
 module.exports = users;

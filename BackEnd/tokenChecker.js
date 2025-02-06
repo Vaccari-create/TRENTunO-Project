@@ -1,13 +1,11 @@
 const express = require('express');
 const jwt = require('jsonwebtoken');
-const User = require('./Routes/users');
-
 const SECRET = process.env.SUPER_SECRET;
 
-function tokenChecker (req, res, next) {
-    console.log("SONO DENTRO");
+const tokenChecker = function (req, res, next) {
+
     const token = req.headers['token'];
-    console.log(token);
+    
     if (token) {
         jwt.verify(token, SECRET, async (err, payload) => {
             if (err) {

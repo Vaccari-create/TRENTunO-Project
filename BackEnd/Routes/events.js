@@ -171,4 +171,6 @@ events.delete('/:id', async (req, res) => {
   }
 });
 
+//TODO: put per cambiare lo stato dell'evento
+
 module.exports = events;
