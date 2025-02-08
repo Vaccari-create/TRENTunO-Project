@@ -8,7 +8,6 @@ const events = express.Router();
 events.get('/', async (req, res) => {
   const { user_id, status } = req.query;
   const park_id = req.query.park_id
-  console.log(req.query)
   try {
   const filter = {};
 
@@ -33,7 +32,6 @@ events.get('/', async (req, res) => {
     filter.park_id = mongoose.Types.ObjectId.createFromHexString(park_id);
   }
 
-    console.log(filter)
     const events = await Event.find(filter);
     if (events.length === 0) {
       return res.status(404).json({ message: 'No events found.' });
@@ -41,7 +39,6 @@ events.get('/', async (req, res) => {
 
     res.status(200).json(events);
   } catch (err) {
-    console.error('Error retrieving events:', err);
     res.status(500).json({ error: 'An error occurred while retrieving events.' });
   }
 });
@@ -87,20 +84,19 @@ events.post('/', tokenChecker, async (req, res) => {
 
 // GET /events/:id
 events.get('/:id', async (req, res) => {
-    const eventID = req.params.id;
+    const { id } = req.params;
   
-    if (!mongoose.Types.ObjectId.isValid(eventID)) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ error: 'Invalid event ID format.' });
     }
   
     try {
-      const event = await Event.findById(mongoose.Types.ObjectId.createFromHexString(eventID));
+      const event = await Event.findById(id);
   
       if (!event) {
         return res.status(404).json({ message: 'Event not found.' });
       }
   
-      // Respond with the found event
       res.status(200).json(event);
     } catch (err) {
       console.error('Error retrieving event:', err);
@@ -147,7 +143,7 @@ events.put('/:id', tokenChecker, async (req, res) => {
   }
 });
 
-events.delete('/:id', async (req, res) => {
+events.delete('/:id', tokenChecker, async (req, res) => {
   const { id } = req.params;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
@@ -171,6 +167,37 @@ events.delete('/:id', async (req, res) => {
   }
 });
 
-//TODO: put per cambiare lo stato dell'evento
+events.put('/changeStatus/:id', tokenChecker, async (req, res) => {
+  const { id } = req.params;
+  const { user_level } = req.query;
+
+  if (!mongoose.Types.ObjectId.isValid(id)) {
+    return res.status(400).json({ error: 'Invalid event ID format.' });
+  }
+ 
+  if (!user_level || user_level !== 'Admin') {
+    return res.status(403).json({ message: 'Only admins can update event status.' });
+  }
+
+  try {
+    const updatedEvent = await Event.findByIdAndUpdate(
+      id,
+      { status: true },
+      { new: true }
+    );
+
+    if (!updatedEvent) {
+      return res.status(404).json({ message: 'Event not found.' });
+    }
+
+    res.status(200).json({
+      message: 'Event status successfully updated.',
+      event: updatedEvent,
+    });
+  } catch (err) {
+    console.error('Error updating event status:', err);
+    res.status(500).json({ error: 'An error occurred while updating the event status.' });
+  }
+});
 
 module.exports = events;

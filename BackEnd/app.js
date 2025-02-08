@@ -3,7 +3,6 @@
 const express = require('express');
 const cors = require('cors');
 const morgan = require('morgan');
-const { Db, ObjectId } = require('mongodb');
 const mongoose = require('mongoose');
 require('dotenv').config();
 
@@ -39,7 +38,9 @@ app.use((err, req, res, next) => {
 
 
 
-const server = app.listen(port,()=>{console.log('Example app listening on port ' + port)})
-mongoose.connect("mongodb+srv://Admin:Admin31@cluster31.d2mdy.mongodb.net/Testing");
+if (process.env.NODE_ENV !== "test"){
+  app.listen(port,()=>{console.log('Example app listening on port ' + port)})
+}
+mongoose.connect(DB);
 
 module.exports = app;

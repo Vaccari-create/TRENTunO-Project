@@ -1,30 +1,28 @@
 openapi: 3.0.0
 info:
-  title: Simple Inventory API
-  description: This is a simple API
-  contact:
-    email: you@your-company.com
+  title: TRENTunO API
+  description: This is the API of the project TRENTunO
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   version: 1.0.0
 servers:
-# Added by API Auto Mocking Plugin
 - description: SwaggerHub API Auto Mocking
-  url: https://virtserver.swaggerhub.com/MatteoLunardon/TRENTunOAPIs_la_vendetta/1.0.0
 - url: https://virtserver.swaggerhub.com/JOAOPROGRAMMING/TRENTunO/1.0.0
   description: TRENTunO API Auto Mocking
 tags:
 - name: User
-  description: API to manage the users in the system
+  description: API to manage the users in the syste
 - name: Park
   description: API to manage the parks in the system
 - name: Review
-  description: API to manage the review in the system
+  description: API to manage the reviews in the system
 - name: Report
   description: API to manage the reports in the system
-- name: PubRequest
-  description: API to manage the publication requests in the system
+- name: Event
+  description: API to manage the events in the system
+- name: PubPermission
+  description: API to manage the requests for permission to publish events in the system
 paths:
   /users:
     get:
@@ -37,7 +35,7 @@ paths:
         description: Auth level of the user
         required: false
         schema:
-          type: string
+          $ref: '#/components/schemas/UserLevelEnum'
       responses:
         "200":
           description: successful operation
@@ -92,6 +90,10 @@ paths:
                 $ref: '#/components/schemas/Users'
         "400":
           description: bad input parameter
+        "404":
+          description: User not found
+        "500":
+          description: Server error
     delete:
       tags:
       - User
@@ -102,23 +104,24 @@ paths:
           description: User id
           required: true 
           schema:
-              $ref: '#/components/schemas/Users'
+            type: string
         - name: id
           in: query
           description: Admin id
           required: true 
           schema:
-              $ref: '#/components/schemas/Users'
+            type: string
       responses:
         "200":
           description: Successful operation
           content:
             application/json:
                 schema:
-                    $ref: '#/components/schemas/Users'
-              
+                    $ref: '#/components/schemas/Users'    
         "400":
           description: Invalid user ID format
+        "403":
+          description: Only admins can change authorization status.
         "404":
           description: User not found
         "500":
@@ -136,8 +139,10 @@ paths:
           type: string
       requestBody:
         required: true
-        schema:
-          $ref: '#/components/schemas/Users'
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Users'
       responses:
         "200":
           description: Successful operation
@@ -150,7 +155,7 @@ paths:
   /users/authentication:
     post:
       tags:
-        - Users
+        - User
       summary: Authenticate a user and return a JWT token
       description: Verifies email and password, and returns a JWT token for authenticated sessions.
       requestBody:
@@ -181,19 +186,14 @@ paths:
                 properties:
                   success:
                     type: boolean
-                    example: true
                   message:
                     type: string
-                    example: "Authentication success"
                   token:
                     type: string
-                    example: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
                   userId:
                     type: string
-                    example: "65f8b2a456eaf23c0d123456"
                   auth:
                     type: boolean
-                    example: true
         "401":
           description: Invalid credentials
           content:
@@ -206,7 +206,6 @@ paths:
                     example: false
                   message:
                     type: string
-                    example: "Authentication failed"
         "500":
           description: Internal server error
           content:
@@ -216,10 +215,8 @@ paths:
                 properties:
                   error:
                     type: string
-                    example: "Internal server error"
   /users/changePassword/{id}:
     put:
-      put:
       tags:
       - User
       description: This API will modify the values of the PASSWORD of the user in the system who has the id specified
@@ -233,11 +230,13 @@ paths:
       requestBody:
         description: New Password
         required: true
-        schema:
-          type: string
+        content:
+          application/json:
+            schema:
+              type: string
       responses:
         "200":
-          description: Successful operation
+          description: Password updated succesffully
         "400":
           description: Bad input format
         "404":
@@ -246,7 +245,6 @@ paths:
           description: Server error
   /users/changeAuth/{id}:
     put:
-      put:
       tags:
       - User
       description: This API will set to true the user's Auth
@@ -258,7 +256,7 @@ paths:
         schema:
           type: string
       - name: id
-        in: query
+        in: path
         description: User id
         required: true 
         schema:
@@ -274,6 +272,7 @@ paths:
           description: No user found with the provided ID
         "500":
           description: Server error
+
   /parks:
     get:
       tags:
@@ -292,7 +291,9 @@ paths:
         description: The category of the park to filter by
         required: false
         schema:
-          $ref: '#/components/schemas/CategoryEnum'
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoryEnum'
       responses:
         "200":
           description: Successful operation
@@ -304,11 +305,13 @@ paths:
                   $ref: '#/components/schemas/Parks'
         "400":
           description: Invalid input parameter
-
+        "500":
+          description: Server error
     post:
       tags:
       - Park
       description: Adds a new park to the system.
+      parameters:
       - name: id
         in: query
         description: Admin id
@@ -329,6 +332,8 @@ paths:
           description: Invalid input format
         "403":
           description: Only admins can change authorization status.
+        "500":
+          description: Server error
 
   /parks/{id}:
     get:
@@ -345,15 +350,12 @@ paths:
       responses:
         "200":
           description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Parks'
         "400":
           description: Invalid input parameter
         "404":
           description: Park not found
-  
+        "500":
+          description: Server error
     delete:
       tags:
       - Park
@@ -376,14 +378,14 @@ paths:
                   message:
                     type: string
                     example: Park successfully deleted
+                  deletedPark:
+                    $ref: '#/components/schemas/Parks'
         "400":
           description: Invalid ID format
         "404":
           description: Park not found
         "500":
           description: Server error
-
-
   /events:
     get:
       tags:
@@ -399,6 +401,7 @@ paths:
       - name: park_id
         in: query
         description: filter events by Park ID
+        required: false
         schema:
           type: string
       - name: event status
@@ -421,7 +424,6 @@ paths:
           description: Event not found
         "500":
           description: Server error
-  
     post:
       tags:
       - Event
@@ -434,7 +436,7 @@ paths:
           schema:
             type: boolean
       requestBody:
-        description: The User object to be added
+        description: The Event object to be added
         required: true
         content:
           application/json:
@@ -443,6 +445,10 @@ paths:
       responses:
         "201":
           description: event created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Events'
         "400":
           description: invalid input, object invalid
         "500":
@@ -459,7 +465,7 @@ paths:
         description: Event id
         required: true 
         schema: 
-          $ref: '#/components/schemas/Parks'
+          type: string
       responses:
         "200":
           description: successful operation
@@ -490,8 +496,7 @@ paths:
           description: The user level to validate admin access
           required: true
           schema:
-            type: string
-            enum: [Admin, User]
+            $ref: '#/components/schemas/UserLevelEnum'
       requestBody:
         description: The updated event description
         required: true
@@ -524,7 +529,6 @@ paths:
           description: Event not found
         "500":
           description: Server error
-    
     delete:
       tags:
       - Event
@@ -555,7 +559,46 @@ paths:
           description: Event not found
         "500":
           description: Server error
-
+  /events/changeStatus/{id}:
+    put:
+      tags:
+        - Event
+      summary: Change event status
+      description: Allows an admin to change the status of an event.
+      parameters:
+        - name: id
+          in: path
+          description: The unique ID of the event
+          required: true
+          schema:
+            type: string
+        - name: user_level
+          in: query
+          description: The user level to validate admin access
+          required: true
+          schema:
+            $ref: '#/components/schemas/UserLevelEnum'
+      responses:
+        "200":
+          description: Event status successfully updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Event status successfully updated."
+                  event:
+                    $ref: '#/components/schemas/Events'
+        "400":
+          description: Invalid event ID format
+        "403":
+          description: Unauthorized access, only admins can perform this action
+        "404":
+          description: Event not found
+        "500":
+          description: Server error
 
   /reviews:
     get:
@@ -587,11 +630,8 @@ paths:
                   $ref: '#/components/schemas/Reviews'
         "400":
           description: Invalid input format
-        "404":
-          description: No reviews found
         "500":
           description: Server error
-
     post:
       tags:
       - Review
@@ -609,6 +649,8 @@ paths:
           description: Review added successfully!
         "400":
           description: Invalid input format
+        "500":
+          description: Server error
 
   /reviews/{id}:
     get:
@@ -636,7 +678,6 @@ paths:
           description: Review not found
         "500":
           description: Server error
-
     delete:
       tags:
       - Review
@@ -671,6 +712,8 @@ paths:
 
   /pubPermissions:
     get:
+      tags: 
+      - PubPermission
       summary: Retrieve publication requests
       description: Returns all publication requests, optionally filtered by user_id.
       parameters:
@@ -695,8 +738,9 @@ paths:
           description: No publication requests found
         "500":
           description: Server error
-
     post:
+      tags:
+      - PubPermisssion
       summary: Create a new publication request
       description: Creates a new publication request with a user_id and description.
       requestBody:
@@ -734,6 +778,8 @@ paths:
 
   /pubPermissions/{id}:
     delete:
+      tags:
+      - PubPermission
       summary: Delete a publication request
       description: Deletes a publication request by its ID.
       parameters:
@@ -762,8 +808,6 @@ paths:
         "500":
           description: Server error
     
-
-
   /reports:
     get:
       tags:
@@ -797,7 +841,6 @@ paths:
           description: Report not found
         "500":
           description: Server error
-
     post:
       tags:
       - Report
@@ -852,7 +895,6 @@ paths:
           description: Report not found
         "500":
           description: Server error
-
     delete:
       tags:
       - Report
@@ -875,6 +917,8 @@ paths:
                   message:
                     type: string
                     example: Report successfully deleted
+                  deletedReport:
+                    $ref: '#/components/schemas/Reports'
         "400":
           description: Invalid input format
         "404":
@@ -925,10 +969,14 @@ components:
           type: boolean
           description: Whether the user is authenticated
           default: false
-          example: false
-        
+          example: false     
     Parks:
       type: object
+      required:
+        - name
+        - x_coord
+        - y_coord
+        - description
       properties:
         id:
           type: string
@@ -976,6 +1024,15 @@ components:
           description: Indicates whether the event is active
           default: false
           example: true
+        title:
+          type: string
+          description: Title of the event
+          default: ""
+          example: "PicNic"
+        date:
+          type: string
+          description: Date of the event
+          example: "11-07-2025"
         description:
           type: string
           description: Additional details or notes about the event
@@ -983,6 +1040,9 @@ components:
           example: "Community park cleanup scheduled for Saturday morning."
     Reports:
       type: object
+      required:
+        - user_id
+        - park_id
       properties:
         id:
           type: string
@@ -994,13 +1054,23 @@ components:
           type: string
           example: "60d21b4567d0d8992e610b98"
         status:
-          type: boolean
-          example: true
+          type: string
+          description: The status of the report by the operator
+          enum:
+            - Inserita
+            - Presa in carica
+            - Chiusa
+          example: "Chiusa"
         description:
           type: string
+          default: ""
           example: "Broken bench near the entrance"
     Reviews:
       type: object
+      required:
+        - user_id
+        - park_id
+        - Rating
       properties:
         id:
           type: string
@@ -1011,10 +1081,10 @@ components:
         park_id:
           type: string
           example: "60d21b4567d0d8992e610b98"
-        rating:
+        Rating:
           type: number
           example: 4.5
-        comment:
+        Description:
           type: string
           example: "A lovely place to relax."
     PubPermissions:
@@ -1046,24 +1116,3 @@ components:
         - Admin
         - Client
       example: "Admin"
-   
-   
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

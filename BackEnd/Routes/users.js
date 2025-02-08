@@ -3,6 +3,7 @@ const jwt = require('jsonwebtoken');
 const express = require('express');
 const mongoose = require ('mongoose');
 const tokenChecker = require('../tokenChecker');
+const Enums = require('../models/Enums');
 
 const users = express.Router();
 
@@ -36,63 +37,73 @@ users.post("/authentication", async (req, res) => {
   }
 });
 
-
-
 users.get("/", async (req, res) => {
-    const { user_level }  = req.query;
-  
-    if (user_level) {
-      const validUserLevels = ["Admin", "Client"];
-      if (!validUserLevels.includes(user_level)) {
-        return res.status(400).json({ error: "Invalid user_level. Allowed values: Admin, Client." });
-      }
+  const { user_level } = req.query;
+
+  if (user_level) {
+    if (!Enums.user_level.enum.includes(user_level)) {
+      return res.status(400).json({
+        error: `Invalid user_level. Allowed values: ${Enums.user_level.enum.join(", ")}.`,
+      });
     }
-  
-    try {
-      const filter = user_level ? { user_level } : {};
-  
-      const usersList = await User.find(filter);
-  
-      if (usersList.length > 0) {
-        return res.status(200).json(usersList);
-      } else {
-        return res.status(404).json({ message: "No users found." });
-      }
-    } catch (err) {
-      console.error("Error fetching users:", err);
-      return res.status(500).json({ error: "An error occurred while fetching users." });
+  }
+
+  try {
+    const filter = user_level ? { user_level } : {};
+    const usersList = await User.find(filter);
+
+    if (usersList.length > 0) {
+      return res.status(200).json(usersList);
+    } else {
+      return res.status(404).json({ message: "No users found." });
     }
-  });
+  } catch (err) {
+    console.error("Error fetching users:", err);
+    return res.status(500).json({ error: "An error occurred while fetching users." });
+  }
+});
 
 
-  users.post("/", async (req,res) => {
-    try{
-        const ExistingUser = await User.find({email: req.body.email});
-        if(ExistingUser.length > 0){
-            return res.status(409).json({message: "There is an existing account!"});
-        }
-        else{
-            console.log(req.body.name);
-            const newUser = new User({
-                name : req.body.name,
-                surname: req.body.surname,
-                email: req.body.email,
-                password: req.body.password,
-                user_level: "Client",
-                auth: false
-            });
-            await newUser.save();
-            return res.status(201).json({
-                message: "User created successfully",
-                park: newUser,
-    
-            });
-        }
-    }    
-    catch(err){
-        return res.status(500).json({error: err.message});
+users.post("/", async (req, res) => {
+  try {
+    const { name, surname, email, password, user_level } = req.body;
 
+    if (!name || !surname || !email || !password) {
+      return res.status(400).json({ message: "All fields are required." });
     }
+
+    const validUserLevels = Enums.user_level.enum;
+    const assignedUserLevel = user_level;
+
+    if (!validUserLevels.includes(assignedUserLevel)) {
+      return res.status(400).json({
+        message: `Invalid user_level. Allowed values: ${validUserLevels.join(", ")}.`,
+      });
+    }
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(409).json({ message: "There is an existing account!" });
+    }
+
+    const newUser = new User({
+      name,
+      surname,
+      email,
+      password,
+      user_level: assignedUserLevel,
+      auth: false,
+    });
+
+    await newUser.save();
+
+    return res.status(201).json({
+      message: "User created successfully",
+      user: newUser,
+    });
+  } catch (err) {
+    return res.status(500).json({ error: err.message });
+  }
 });
 
 users.get("/:id", async (req, res) => {

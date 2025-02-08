@@ -1,6 +1,5 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const ObjectId = require('mongodb');
 const PubPermission = require('../models/PubPermission');
 const tokenChecker = require('../tokenChecker');
 
@@ -12,12 +11,11 @@ pubPermission.get("/", async (req, res) => {
     try {
     const filter = {};
 
-    // If user_id is provided, validate and add it to the filter
     if (user_id) {
         if (!mongoose.Types.ObjectId.isValid(user_id)) {
           return res.status(400).json({ error: "Invalid user_id format." });
         }
-        filter.user_id = mongoose.Types.ObjectId.createFromHexString(user_id);
+        filter.user_id = user_id;
       }
 
     const requests = await PubPermission.find(filter);
@@ -42,8 +40,8 @@ pubPermission.post('/', tokenChecker, async (req, res) => {
   
     try {
       const newRequest = new PubPermission({
-        user_id: mongoose.Types.ObjectId.createFromHexString(user_id),
-        Description: Description,
+        user_id,
+        Description,
       });
   
       await newRequest.save();
@@ -60,13 +58,12 @@ pubPermission.post('/', tokenChecker, async (req, res) => {
 pubPermission.delete('/:id', async (req, res) => {
   const { id } = req.params;
 
-  // Controllo se l'ID è valido
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({ error: 'Invalid request ID format.' });
   }
 
   try {
-    const deletedRequest = await PubRequest.findByIdAndDelete(id);
+    const deletedRequest = await PubPermission.findByIdAndDelete(id);
 
     if (!deletedRequest) {
       return res.status(404).json({ message: 'Publication request not found.' });

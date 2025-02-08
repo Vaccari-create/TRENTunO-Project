@@ -1,13 +1,11 @@
 const express = require('express');
 const review = express.Router();
 const Review = require("../models/Review");
-const mongoose = require('mongoose'); // Non so se mi servirà
-const { ObjectId } = require('mongodb');
+const mongoose = require('mongoose');
 const tokenChecker = require('../tokenChecker');
 
   review.get("/", async (req, res) => {
     const { user_id, park_id } = req.query;
-    console.log("Review --- "+ park_id)
     try {
       const filter = {};
 
@@ -35,17 +33,13 @@ const tokenChecker = require('../tokenChecker');
     }
   });
   
-  /*ADD REVIEW;   client/addReview */
   review.post("/", tokenChecker, async (req, res) => {
     const user_id = req.body.user_id;
-    console.log("USer ---> "+ user_id)
     const park_id = req.body.park_id;
     const Rating = req.body.Rating;
     const Description  = req.body.Description;
-    console.log(req.body)
   
-    try {
-      // || 
+    try { 
       if (!user_id || !mongoose.Types.ObjectId.isValid(user_id)) {
         return res.status(400).json({ message: "Invalid or missing userID" });
       }
@@ -68,8 +62,6 @@ const tokenChecker = require('../tokenChecker');
         Rating,
         Description: Description.trim(),
       });
-
-      console.log(newReview.user_id)
   
       await newReview.save();
   
@@ -84,14 +76,14 @@ const tokenChecker = require('../tokenChecker');
   });
   
   review.get("/:id", async (req, res) => {
-    const review_id = req.params.id;
+    const { id } = req.params;
 
     try {
-      if (!mongoose.Types.ObjectId.isValid(review_id)) {
+      if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ error: "Invalid review ID format." });
       }
 
-      const review = await Review.findById(mongoose.Types.ObjectId.createFromHexString(review_id));
+      const review = await Review.findById(id);
 
       if (!review) {
         return res.status(404).json({ message: "Review not found." });
@@ -106,14 +98,14 @@ const tokenChecker = require('../tokenChecker');
 
   review.delete("/:id", async (req, res) => {
     
-    const review_id = req.params.id;
+    const { id } = req.params;
   
     try {
-      if (!mongoose.Types.ObjectId.isValid(review_id)) {
+      if (!mongoose.Types.ObjectId.isValid(id)) {
         return res.status(400).json({ error: "Invalid review ID format." });
       }
   
-      const reviewDeleted = await Review.findByIdAndDelete(review_id);
+      const reviewDeleted = await Review.findByIdAndDelete(id);
   
       if (!reviewDeleted) {
         return res.status(404).json({ message: "Review not found." });

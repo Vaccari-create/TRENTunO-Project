@@ -1,7 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
-const ObjectId = require('mongodb');
 const Park = require('../models/Park');
+const User = require('../models/User');
 const Enums = require('../models/Enums');
 const tokenChecker = require('../tokenChecker');
 
@@ -16,13 +16,10 @@ parks.get('/', async (req, res) => {
 
   if(categories){
     try{
-      // Extract the valid categories from Enums
       const allCategories = Enums.categories.enum;
 
-      // Transform the categories into an array if the elements are separated by a commas
       const categoryList = Array.isArray(categories) ? categories : categories.split(',');
-
-      // Validate each category against the valid categories
+      
       const invalidCategories = categoryList.filter(
         (category) => !allCategories.includes(category)
       );
@@ -48,27 +45,56 @@ parks.get('/', async (req, res) => {
 });
 
 parks.post('/', tokenChecker, async (req, res) => {
-
-  const {name, x_coord, y_coord, rating, description, categories} = req.body;
+  const { name, x_coord, y_coord, rating, description, categories } = req.body;
   const { adminId } = req.query;
 
-  try {
+  if (!name || typeof name !== "string" || name.trim().length === 0) {
+    return res.status(400).json({ message: "Invalid or missing Name. It must be a non-empty string." });
+  }
 
+  if (typeof x_coord !== "number" || isNaN(x_coord)) {
+    return res.status(400).json({ message: "Invalid or missing x_coord. It must be a number." });
+  }
+  if (typeof y_coord !== "number" || isNaN(y_coord)) {
+    return res.status(400).json({ message: "Invalid or missing y_coord. It must be a number." });
+  }
+
+  if (typeof rating !== "number" || rating < 1 || rating > 5) {
+    return res.status(402).json({ message: "Invalid or missing Rating. It must be a number between 1 and 5." });
+  }
+
+  if (!description || typeof description !== "string" || description.trim().length === 0) {
+    return res.status(400).json({ message: "Invalid or missing Description. It must be a non-empty string." });
+  }
+
+  if (!Array.isArray(categories) || categories.length === 0) {
+    return res.status(400).json({ message: "Invalid or missing Categories. It must be a non-empty array." });
+  }
+
+  const validCategories = Enums.categories.enum;
+  const invalidCategories = categories.filter(cat => !validCategories.includes(cat));
+
+  if (invalidCategories.length > 0) {
+    return res.status(400).json({
+      message: `Invalid categories: ${invalidCategories.join(', ')}. Allowed values: ${validCategories.join(', ')}.`
+    });
+  }
+
+  try {
     const admin = await User.findById(adminId);
     if (!admin || admin.user_level !== "Admin") {
-        return res.status(403).json({ message: "Only admins can change authorization status." });
+      return res.status(403).json({ message: "Only admins can create parks." });
     }
 
     const newPark = new Park({
-      name: name, 
-      x_coord: x_coord, 
-      y_coord: y_coord,  
-      rating: rating, 
-      description: description, 
-      categories: categories
+      name,
+      x_coord,
+      y_coord,
+      rating,
+      description,
+      categories,
     });
 
-    
     await newPark.save();
 
     res.status(201).json({
@@ -81,15 +107,14 @@ parks.post('/', tokenChecker, async (req, res) => {
 });
 
 parks.get("/:id", async (req, res) => {
+    const { id } = req.params;
     
-    const parkId = req.params.id;
-    
-    if (!mongoose.Types.ObjectId.isValid(parkId)) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ error: 'Invalid ID format.' });
     }
   
     try{
-      const park = await Park.findById(parkId);
+      const park = await Park.findById(id);
   
       if(!park){
         return res.status(404).json({message: 'park not found'});
@@ -102,14 +127,14 @@ parks.get("/:id", async (req, res) => {
   });
 
   parks.delete("/:id", async (req, res) => {
-    const parkId = req.params.id;
+    const { id } = req.params;
 
-    if (!mongoose.Types.ObjectId.isValid(parkId)) {
+    if (!mongoose.Types.ObjectId.isValid(id)) {
       return res.status(400).json({ error: 'Invalid ID format.' });
     }
   
     try {
-      const result = await Park.findByIdAndDelete(parkId);
+      const result = await Park.findByIdAndDelete(id);
   
       if (!result) {
         return res.status(404).json({ error: "Park not found." });
@@ -117,7 +142,6 @@ parks.get("/:id", async (req, res) => {
   
       res.status(200).json({ message: "Park successfully deleted", deletedPark: result });
     } catch (err) {
-      // Handle server errors
       res.status(500).json({ error: err.message });
     }
   });
