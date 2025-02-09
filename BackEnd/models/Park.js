@@ -1,5 +1,5 @@
 var mongoose = require('mongoose');
-var Enums = require('../models/Enums');
+var Enums = require('./Enums');
 var Schema = mongoose.Schema;
 module.exports = mongoose.model('Park',new mongoose.Schema({
     name: {type: String, required: true},

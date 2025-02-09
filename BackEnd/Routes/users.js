@@ -68,7 +68,6 @@ users.get("/", async (req, res) => {
 users.post("/", async (req, res) => {
   try {
     const { name, surname, email, password, user_level } = req.body;
-
     if (!name || !surname || !email || !password) {
       return res.status(400).json({ message: "All fields are required." });
     }
