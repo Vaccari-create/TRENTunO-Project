@@ -16,7 +16,7 @@ function submit() {
         const requestOptions = {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name: rname.value, surname: rsurname.value, email: remail.value, password: rpassword.value })
+            body: JSON.stringify({ name: rname.value, surname: rsurname.value, email: remail.value, password: rpassword.value, user_level: "Client"})
         };
         fetch("http://localhost:3030/api/users", requestOptions)
         .then(response => response.json())

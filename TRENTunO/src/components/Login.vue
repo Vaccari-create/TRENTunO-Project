@@ -10,7 +10,7 @@ function login(){
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email: remail.value, password: rpass.value})
             };
-            fetch("http://localhost:3030/api/users/authentications", requestOptions)
+            fetch("http://localhost:3030/api/users/authentication", requestOptions)
                 .then(response => response.json())
                 .then(data =>  {
                 console.log(data) 
@@ -37,7 +37,7 @@ function login(){
           </div>
           <div class=" my-4">
             <span class=" font-semibold"> Password </span>
-            <input type="text" v-model="rpass" name="passwrod" class=" block text-lg p-1 w-full rounded border-gray-200 border-2 ">
+            <input type="password" v-model="rpass" name="passwrod" class=" block text-lg p-1 w-full rounded border-gray-200 border-2 ">
         </div>            
             <button @click="login" class=" text-xl font-semibold p-3 px-8  rounded-full bg-slate-500 text-white">Login</button>
         
