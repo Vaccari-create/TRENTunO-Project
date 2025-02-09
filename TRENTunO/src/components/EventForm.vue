@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { loggedUser } from '@/login';
 import { router } from '@/main';
+import { API } from '@/main';
 
 if(loggedUser.id == undefined){
     alert("Login non effettuato " )
@@ -15,7 +16,7 @@ const rid = ref(null);
 const rdescription = ref(null);
 const rtitle = ref(null);
 const rdate = ref(null)
-fetch('http://localhost:3030/api/parks/').then(res => res.json())
+fetch(API+'/api/parks/').then(res => res.json())
     .then(data => parks.value = data)
 
 function submit() {

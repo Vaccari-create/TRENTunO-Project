@@ -2,6 +2,7 @@
 import { ref } from 'vue';
 import { router } from '@/main';
 import { setLoggedUser } from '@/login';
+import { API } from '@/main';
 const rpass = ref(null)
 const remail = ref(null)
 function login(){
@@ -10,7 +11,7 @@ function login(){
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ email: remail.value, password: rpass.value})
             };
-            fetch("http://localhost:3030/api/users/authentication", requestOptions)
+            fetch(API+"/api/users/authentication", requestOptions)
                 .then(response => response.json())
                 .then(data =>  {
                 console.log(data) 

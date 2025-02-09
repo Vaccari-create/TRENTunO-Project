@@ -3,7 +3,7 @@ import Review from './Review.vue';
 import { ref } from 'vue';
 import { loggedUser, clearLoggedUser } from '@/login';
 
-import { router } from '@/main';
+import { router, API } from '@/main';
 
 console.log(loggedUser)
 if(loggedUser.id == undefined){
@@ -13,7 +13,7 @@ if(loggedUser.id == undefined){
 
 const revs = ref(null);
 const unames = ref([])
-fetch('http://localhost:3030/api/reviews/?user_id='+loggedUser.id).then(res => res.json())
+fetch(API+'/api/reviews/?user_id='+loggedUser.id).then(res => res.json())
     .then(data => {
         revs.value = data
         for (let index = 0; index < revs.value.length; index++) {

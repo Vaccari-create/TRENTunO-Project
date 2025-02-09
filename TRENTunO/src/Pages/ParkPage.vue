@@ -5,7 +5,7 @@ import EventItem from '@/components/EventItem.vue';
 import Review from '@/components/Review.vue';
 import { ref } from 'vue';
 import { loggedUser } from '@/login';
-
+import { API } from '@/main';
 import { router } from '@/main';
 
 
@@ -19,17 +19,17 @@ const rreport = ref("")
 
 const parkInfo = ref({ name : "" })
 
-fetch('http://localhost:3030/api/parks/'+props.id).then(res => res.json())
+fetch(API+'/api/parks/'+props.id).then(res => res.json())
     .then(data => parkInfo.value = data)
 
 const revs = ref("null");
 const unames = ref([])
-fetch('http://localhost:3030/api/reviews/?park_id='+props.id).then(res => res.json())
+fetch(API+'/reviews/?park_id='+props.id).then(res => res.json())
     .then(data => {
         console.log(data)
         revs.value = data
         for (let index = 0; index < revs.value.length; index++) {
-            fetch('http://localhost:3030/api/users/'+revs.value[index].user_id).then(res => res.json())
+            fetch(API+'/api/users/'+revs.value[index].user_id).then(res => res.json())
                     .then(data => unames.value[index] = data) 
         }
     }

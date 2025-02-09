@@ -1,6 +1,7 @@
 <script setup>
 import { ref } from 'vue';
 import { router } from '@/main';
+import { API } from '@/main';
 const rname = ref(null);
 const rsurname = ref(null);
 const rpassword = ref(null);
@@ -18,7 +19,7 @@ function submit() {
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ name: rname.value, surname: rsurname.value, email: remail.value, password: rpassword.value, user_level: "Client"})
         };
-        fetch("http://localhost:3030/api/users", requestOptions)
+        fetch(API+"/api/users", requestOptions)
         .then(response => response.json())
         .then(data =>  data );
         router.push("/login")
