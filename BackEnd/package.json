@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "main": "app.js",
   "scripts": {
-    "start": "node BackEnd/app.js",
-    "dev": "nodemon -r dotenv/config BackEnd/app.js",
+    "start": "node app.js",
+    "dev": "nodemon -r dotenv/config app.js",
     "test": "NODE_ENV=test jest --forceExit --verbose --silent"
   },
   "keywords": [],
