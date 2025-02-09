@@ -1,0 +1,1118 @@
+openapi: 3.0.0
+info:
+  title: TRENTunO API
+  description: This is the API of the project TRENTunO
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+  version: 1.0.0
+servers:
+- description: SwaggerHub API Auto Mocking
+- url: https://virtserver.swaggerhub.com/JOAOPROGRAMMING/TRENTunO/1.0.0
+  description: TRENTunO API Auto Mocking
+tags:
+- name: User
+  description: API to manage the users in the syste
+- name: Park
+  description: API to manage the parks in the system
+- name: Review
+  description: API to manage the reviews in the system
+- name: Report
+  description: API to manage the reports in the system
+- name: Event
+  description: API to manage the events in the system
+- name: PubPermission
+  description: API to manage the requests for permission to publish events in the system
+paths:
+  /users:
+    get:
+      tags:
+      - User
+      description: This API will return all users in the system
+      parameters:
+      - name: user_level
+        in: query
+        description: Auth level of the user
+        required: false
+        schema:
+          $ref: '#/components/schemas/UserLevelEnum'
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                    $ref: '#/components/schemas/Users'
+        "400":
+          description: Invalid input format
+        "404":
+          description: User not found
+        "500":
+          description: Server Error
+    post:
+      tags:
+      - User
+      description: This API will add a new user to the system
+      requestBody:
+        description: The User object to be added
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Users'
+      responses:
+        "201":
+          description: successful operation
+        "409":
+          description: an existing item already exists
+        "500":
+          description: Server error
+  /users/{id}:
+    get:
+      tags:
+      - User
+      description: This API will return the user in the system who has the id specified
+      parameters:
+        - name: id
+          in: path
+          description: User id
+          required: true 
+          schema: 
+            $ref: '#/components/schemas/Users'
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Users'
+        "400":
+          description: bad input parameter
+        "404":
+          description: User not found
+        "500":
+          description: Server error
+    delete:
+      tags:
+      - User
+      description: This API will delete the user in the system who has the id specified
+      parameters:
+        - name: id
+          in: path
+          description: User id
+          required: true 
+          schema:
+            type: string
+        - name: id
+          in: query
+          description: Admin id
+          required: true 
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+                schema:
+                    $ref: '#/components/schemas/Users'    
+        "400":
+          description: Invalid user ID format
+        "403":
+          description: Only admins can change authorization status.
+        "404":
+          description: User not found
+        "500":
+          description: Server Error
+    put:
+      tags:
+      - User
+      description: This API will modify the values of the user in the system who has the id specified
+      parameters:
+      - name: id
+        in: path
+        description: User id
+        required: true 
+        schema:
+          type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Users'
+      responses:
+        "200":
+          description: Successful operation
+        "400":
+          description: No fields to update provided
+        "404":
+          description: No user found with the provided ID
+        "500":
+          description: Server error
+  /users/authentication:
+    post:
+      tags:
+        - User
+      summary: Authenticate a user and return a JWT token
+      description: Verifies email and password, and returns a JWT token for authenticated sessions.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: "user@example.com"
+                password:
+                  type: string
+                  format: password
+                  example: "mypassword123"
+      responses:
+        "200":
+          description: Authentication successful, token provided
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  message:
+                    type: string
+                  token:
+                    type: string
+                  userId:
+                    type: string
+                  auth:
+                    type: boolean
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+        "500":
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+  /users/changePassword/{id}:
+    put:
+      tags:
+      - User
+      description: This API will modify the values of the PASSWORD of the user in the system who has the id specified
+      parameters:
+      - name: id
+        in: path
+        description: User id
+        required: true 
+        schema:
+          type: string
+      requestBody:
+        description: New Password
+        required: true
+        content:
+          application/json:
+            schema:
+              type: string
+      responses:
+        "200":
+          description: Password updated succesffully
+        "400":
+          description: Bad input format
+        "404":
+          description: No user found with the provided ID
+        "500":
+          description: Server error
+  /users/changeAuth/{id}:
+    put:
+      tags:
+      - User
+      description: This API will set to true the user's Auth
+      parameters:
+      - name: id
+        in: query
+        description: Admin id
+        required: true 
+        schema:
+          type: string
+      - name: id
+        in: path
+        description: User id
+        required: true 
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successful operation
+        "400":
+          description: Bad input format
+        "403":
+          description: Only Admins can change authorization status
+        "404":
+          description: No user found with the provided ID
+        "500":
+          description: Server error
+
+  /parks:
+    get:
+      tags:
+      - Park
+      summary: Searches parks
+      description: Returns an array with all parks in the system, optionally filtered by name or category.
+      parameters:
+      - name: name
+        in: query
+        description: The name of the park to filter by
+        required: false
+        schema:
+          type: string
+      - name: category
+        in: query
+        description: The category of the park to filter by
+        required: false
+        schema:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoryEnum'
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Parks'
+        "400":
+          description: Invalid input parameter
+        "500":
+          description: Server error
+    post:
+      tags:
+      - Park
+      description: Adds a new park to the system.
+      parameters:
+      - name: id
+        in: query
+        description: Admin id
+        required: true 
+        schema:
+          type: string
+      requestBody:
+        description: The park object to be added
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Parks'
+      responses:
+        "201":
+          description: Park successfully created
+        "400":
+          description: Invalid input format
+        "403":
+          description: Only admins can change authorization status.
+        "500":
+          description: Server error
+
+  /parks/{id}:
+    get:
+      tags:
+      - Park
+      description: Returns a park in the system with the specified ID.
+      parameters:
+      - name: id
+        in: path
+        description: The unique ID of the park
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successful operation
+        "400":
+          description: Invalid input parameter
+        "404":
+          description: Park not found
+        "500":
+          description: Server error
+    delete:
+      tags:
+      - Park
+      description: Deletes a park in the system with the specified ID.
+      parameters:
+      - name: id
+        in: path
+        description: The unique ID of the park to delete
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Park successfully deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Park successfully deleted
+                  deletedPark:
+                    $ref: '#/components/schemas/Parks'
+        "400":
+          description: Invalid ID format
+        "404":
+          description: Park not found
+        "500":
+          description: Server error
+  /events:
+    get:
+      tags:
+      - Event
+      description: This API will all the events in the system
+      parameters:
+      - name: user_id
+        in: query
+        description: filter events by User ID
+        required: false
+        schema:
+          type: string
+      - name: park_id
+        in: query
+        description: filter events by Park ID
+        required: false
+        schema:
+          type: string
+      - name: event status
+        in: query
+        required: false
+        schema:
+          type: boolean
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Events'
+        "400":
+          description: Invalid input format
+        "404":
+          description: Event not found
+        "500":
+          description: Server error
+    post:
+      tags:
+      - Event
+      description: This API will add a new event by passing the required paramters ( only if the user is authorized to do so)
+      parameters:
+        - name: UserAuth
+          in: query
+          description: User Authorization
+          required: true 
+          schema:
+            type: boolean
+      requestBody:
+        description: The Event object to be added
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Events'
+      responses:
+        "201":
+          description: event created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Events'
+        "400":
+          description: invalid input, object invalid
+        "500":
+          description: Server error
+
+  /events/{id}:
+    get:
+      tags:
+      - Event
+      description: This API will return an event in the system which has the id specified
+      parameters:
+      - name: id
+        in: path
+        description: Event id
+        required: true 
+        schema: 
+          type: string
+      responses:
+        "200":
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Events'
+        "400":
+          description: Invalid input format
+        "404":
+          description: Event not found.
+        "500":
+          description: Server error
+    put:
+      tags:
+        - Event
+      summary: Update an event's description
+      description: Allows an admin to update the description of an event.
+      parameters:
+        - name: id
+          in: path
+          description: The unique ID of the event to update
+          required: true
+          schema:
+            type: string
+        - name: user_level
+          in: query
+          description: The user level to validate admin access
+          required: true
+          schema:
+            $ref: '#/components/schemas/UserLevelEnum'
+      requestBody:
+        description: The updated event description
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                description:
+                  type: string
+                  example: "Updated description for the event."
+      responses:
+        "200":
+          description: Event successfully updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Event successfully updated."
+                  event:
+                    $ref: '#/components/schemas/Events'
+        "400":
+          description: Invalid input or missing required fields
+        "403":
+          description: Unauthorized access, only admins can perform this action
+        "404":
+          description: Event not found
+        "500":
+          description: Server error
+    delete:
+      tags:
+      - Event
+      description: Deletes the event with the specified ID.
+      parameters:
+        - name: id
+          in: path
+          description: The unique ID of the event to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Event successfully deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Event successfully deleted."
+                  event:
+                    $ref: '#/components/schemas/Events'
+        "400":
+          description: Invalid event ID format
+        "404":
+          description: Event not found
+        "500":
+          description: Server error
+  /events/changeStatus/{id}:
+    put:
+      tags:
+        - Event
+      summary: Change event status
+      description: Allows an admin to change the status of an event.
+      parameters:
+        - name: id
+          in: path
+          description: The unique ID of the event
+          required: true
+          schema:
+            type: string
+        - name: user_level
+          in: query
+          description: The user level to validate admin access
+          required: true
+          schema:
+            $ref: '#/components/schemas/UserLevelEnum'
+      responses:
+        "200":
+          description: Event status successfully updated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Event status successfully updated."
+                  event:
+                    $ref: '#/components/schemas/Events'
+        "400":
+          description: Invalid event ID format
+        "403":
+          description: Unauthorized access, only admins can perform this action
+        "404":
+          description: Event not found
+        "500":
+          description: Server error
+
+  /reviews:
+    get:
+      tags:
+      - Review
+      summary: Retrieves reviews
+      description: Returns all reviews or filters by user ID or park ID.
+      parameters:
+      - name: user_id
+        in: query
+        description: Filter reviews by the user ID
+        required: false
+        schema:
+          type: string
+      - name: park_id
+        in: query
+        description: Filter reviews by the park ID
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Reviews'
+        "400":
+          description: Invalid input format
+        "500":
+          description: Server error
+    post:
+      tags:
+      - Review
+      summary: Adds a new review
+      description: Creates a new review in the system.
+      requestBody:
+        description: The review object to be added
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Reviews'
+      responses:
+        "201":
+          description: Review added successfully!
+        "400":
+          description: Invalid input format
+        "500":
+          description: Server error
+
+  /reviews/{id}:
+    get:
+      tags:
+      - Review
+      summary: Retrieve a review by ID
+      description: Returns the review with the specified ID.
+      parameters:
+      - name: id
+        in: path
+        description: The unique ID of the review
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reviews'
+        "400":
+          description: Invalid input format
+        "404":
+          description: Review not found
+        "500":
+          description: Server error
+    delete:
+      tags:
+      - Review
+      summary: Deletes a review by ID
+      description: Removes the review with the specified ID from the system.
+      parameters:
+      - name: id
+        in: path
+        description: The unique ID of the review to delete
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Review successfully deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Review successfully deleted
+                  reviewDeleted:
+                    $ref: '#/components/schemas/Reviews'
+        "400":
+          description: Invalid input format
+        "404":
+          description: Review not found
+        "500":
+          description: Server error
+
+  /pubPermissions:
+    get:
+      tags: 
+      - PubPermission
+      summary: Retrieve publication requests
+      description: Returns all publication requests, optionally filtered by user_id.
+      parameters:
+        - name: user_id
+          in: query
+          required: false
+          description: The ID of the user to filter requests by.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Successful retrieval of publication requests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PubPermissions"
+        "400":
+          description: Invalid user_id format
+        "404":
+          description: No publication requests found
+        "500":
+          description: Server error
+    post:
+      tags:
+      - PubPermisssion
+      summary: Create a new publication request
+      description: Creates a new publication request with a user_id and description.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - user_id
+                - Description
+              properties:
+                user_id:
+                  type: string
+                  description: The ID of the user creating the request.
+                Description:
+                  type: string
+                  description: The description of the publication request.
+      responses:
+        "201":
+          description: Publication request successfully created
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  request:
+                    $ref: "#/components/schemas/PubPermissions"
+        "400":
+          description: Invalid or missing user_id or description
+        "500":
+          description: Server error
+
+  /pubPermissions/{id}:
+    delete:
+      tags:
+      - PubPermission
+      summary: Delete a publication request
+      description: Deletes a publication request by its ID.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the publication request to delete.
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Publication request successfully deleted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  request:
+                    $ref: "#/components/schemas/PubPermissions"
+        "400":
+          description: Invalid request ID format
+        "404":
+          description: Publication request not found
+        "500":
+          description: Server error
+    
+  /reports:
+    get:
+      tags:
+      - Report
+      description: Returns all reports in the system (filterable by `user_id` and `park_id`).
+      parameters:
+      - name: user_id
+        in: query
+        description: The user ID to filter reports by
+        required: false
+        schema:
+          type: string
+      - name: park_id
+        in: query
+        description: The park ID to filter reports by
+        required: false
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Reports'
+        "400":
+          description: Invalid input format
+        "404":
+          description: Report not found
+        "500":
+          description: Server error
+    post:
+      tags:
+      - Report
+      description: Creates a new report in the system.
+      requestBody:
+        description: The details of the report to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Reports'
+      responses:
+        "201":
+          description: Successfully created a new report
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Report successfully created
+                  report:
+                    $ref: '#/components/schemas/Reports'
+        "400":
+          description: Invalid input format
+        "500":
+          description: Server error
+
+  /reports/{id}:
+    get:
+      tags:
+      - Report
+      description: Returns a specific report by its unique ID.
+      parameters:
+      - name: id
+        in: path
+        description: The unique ID of the report
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reports'
+        "400":
+          description: Invalid input format
+        "404":
+          description: Report not found
+        "500":
+          description: Server error
+    delete:
+      tags:
+      - Report
+      description: Deletes a specific report by its unique ID.
+      parameters:
+      - name: id
+        in: path
+        description: The unique ID of the report to delete
+        required: true
+        schema:
+          type: string
+      responses:
+        "200":
+          description: Successfully deleted the report
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Report successfully deleted
+                  deletedReport:
+                    $ref: '#/components/schemas/Reports'
+        "400":
+          description: Invalid input format
+        "404":
+          description: Report not found
+        "500":
+          description: Server error
+
+components:
+  schemas:
+    Users:
+      type: object
+      required:
+        - name
+        - surname
+        - email
+        - password
+        - user_level
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the user
+          example: "60d21b4567d0d8992e610b98"
+        name:
+          type: string
+          description: The user's first name
+          example: "John"
+        surname:
+          type: string
+          description: The user's last name
+          example: "Doe"
+        email:
+          type: string
+          description: The user's email address
+          format: email
+          example: "john.doe@example.com"
+        password:
+          type: string
+          description: The user's password
+          example: "$2b$10$N9qo8uLOickgx"
+        user_level:
+          type: string
+          description: The user's level of access
+          enum:
+            - Admin
+            - Client
+          example: "Admin"
+        auth:
+          type: boolean
+          description: Whether the user is authenticated
+          default: false
+          example: false     
+    Parks:
+      type: object
+      required:
+        - name
+        - x_coord
+        - y_coord
+        - description
+      properties:
+        id:
+          type: string
+          example: "60d21b4567d0d8992e610b98"
+        name:
+          type: string
+          example: "Albere"
+        x_coord:
+          type: number
+          example: 46.0709
+        y_coord:
+          type: number
+          example: 11.1212
+        rating:
+          type: number
+          example: 4.5
+        description:
+          type: string
+          example: "A beautiful park with a fountain and running paths."
+        categories:
+          type: array
+          items:
+            type: string
+            example: "Running, Pet-Friendly"
+    Events:
+      type: object
+      required:
+        - user_id
+        - park_id
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the event
+          example: "60d21b4567d0d8992e610b98"
+        user_id:
+          type: string
+          description: Reference to the ID of the user who created the event
+          example: "60d21b4567d0d8992e610b97"
+        park_id:
+          type: string
+          description: Reference to the ID of the park associated with the event
+          example: "60d21b4567d0d8992e610b96"
+        status:
+          type: boolean
+          description: Indicates whether the event is active
+          default: false
+          example: true
+        title:
+          type: string
+          description: Title of the event
+          default: ""
+          example: "PicNic"
+        date:
+          type: string
+          description: Date of the event
+          example: "11-07-2025"
+        description:
+          type: string
+          description: Additional details or notes about the event
+          default: ""
+          example: "Community park cleanup scheduled for Saturday morning."
+    Reports:
+      type: object
+      required:
+        - user_id
+        - park_id
+      properties:
+        id:
+          type: string
+          example: "60d21b4667d0d8992e610c85"
+        user_id:
+          type: string
+          example: "60d21b4567d0d8992e610b97"
+        park_id:
+          type: string
+          example: "60d21b4567d0d8992e610b98"
+        status:
+          type: string
+          description: The status of the report by the operator
+          enum:
+            - Inserita
+            - Presa in carica
+            - Chiusa
+          example: "Chiusa"
+        description:
+          type: string
+          default: ""
+          example: "Broken bench near the entrance"
+    Reviews:
+      type: object
+      required:
+        - user_id
+        - park_id
+        - Rating
+      properties:
+        id:
+          type: string
+          example: "61d21b4567d0d8992e610c12"
+        user_id:
+          type: string
+          example: "62e31b4567d0d8992e610d34"
+        park_id:
+          type: string
+          example: "60d21b4567d0d8992e610b98"
+        Rating:
+          type: number
+          example: 4.5
+        Description:
+          type: string
+          example: "A lovely place to relax."
+    PubPermissions:
+      type: object
+      properties:
+        id:
+          type: string
+          description: The unique identifier of the publication request.
+        user_id:
+          type: string
+          description: The ID of the user who created the request.
+        Description:
+          type: string
+          description: The description of the request.
+    CategoryEnum:
+      type: string
+      enum:
+        - Pet-Friendly
+        - Sport
+        - Running
+        - Fountain
+        - Nature
+        - Playground
+      example: "Running"
+
+    UserLevelEnum:
+      type: string
+      enum:
+        - Admin
+        - Client
+      example: "Admin"
