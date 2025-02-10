@@ -14,7 +14,7 @@ if(loggedUser.id == undefined){
 const n = ref('')
 const s = ref('')
 
-fetch(API + '/api/users/67a4bf10c4bc572b7976126e').then(res => res.json())
+fetch(API + '/api/users/'+loggedUser.id).then(res => res.json())
     .then(data => {
         n.value = data.name
         s.value = data.surname
