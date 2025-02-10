@@ -7,7 +7,7 @@ import { API } from '@/main';
 
 const parks = ref(null);
 
-fetch(API+'api/parks/').then(res => res.json())
+fetch(API+'/api/parks/').then(res => res.json())
     .then(data => parks.value = data)
 
 
