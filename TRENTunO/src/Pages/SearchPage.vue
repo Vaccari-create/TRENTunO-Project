@@ -3,10 +3,11 @@ import Navbar from '@/components/Navbar.vue';
 import ParkSearchItem from '@/components/ParkSearchItem.vue';
 import MainFooter from '@/components/MainFooter.vue';
 import { ref } from 'vue';
+import { API } from '@/main';
 
 const parks = ref(null);
 
-fetch('http://localhost:3030/api/parks/').then(res => res.json())
+fetch(API+'/api/parks/').then(res => res.json())
     .then(data => parks.value = data)
 
 

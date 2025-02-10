@@ -14,6 +14,8 @@ import PermissionPage from './Pages/PermissionPage.vue'
 import ReportPage from './Pages/ReportPage.vue'
 import EventRequestPage from './Pages/EventRequestPage.vue'
 
+export const API = "https://trentuno.onrender.com"
+
 export const router = createRouter({
     history: createWebHistory(),
     routes: [

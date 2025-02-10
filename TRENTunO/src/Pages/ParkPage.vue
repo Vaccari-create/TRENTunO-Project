@@ -5,7 +5,7 @@ import EventItem from '@/components/EventItem.vue';
 import Review from '@/components/Review.vue';
 import { ref } from 'vue';
 import { loggedUser } from '@/login';
-
+import { API } from '@/main';
 import { router } from '@/main';
 
 
@@ -19,17 +19,17 @@ const rreport = ref("")
 
 const parkInfo = ref({ name : "" })
 
-fetch('http://localhost:3030/api/parks/'+props.id).then(res => res.json())
+fetch(API+'/api/parks/'+props.id).then(res => res.json())
     .then(data => parkInfo.value = data)
 
 const revs = ref("null");
 const unames = ref([])
-fetch('http://localhost:3030/api/reviews/?park_id='+props.id).then(res => res.json())
+fetch(API+'/api/reviews/?park_id='+props.id).then(res => res.json())
     .then(data => {
         console.log(data)
         revs.value = data
         for (let index = 0; index < revs.value.length; index++) {
-            fetch('http://localhost:3030/api/users/'+revs.value[index].user_id).then(res => res.json())
+            fetch(API+'/api/users/'+revs.value[index].user_id).then(res => res.json())
                     .then(data => unames.value[index] = data) 
         }
     }
@@ -37,7 +37,7 @@ fetch('http://localhost:3030/api/reviews/?park_id='+props.id).then(res => res.js
 
 
 const eves = ref(null)
-fetch('http://localhost:3030/api/events/?park_id='+props.id).then(res => res.json())
+fetch(API+'/api/events/?park_id='+props.id).then(res => res.json())
     .then(data => eves.value = data)
 
 function submit() {
@@ -48,7 +48,7 @@ function submit() {
     body: JSON.stringify({ user_id: loggedUser.id, park_id: props.id, Rating: rnumber.value, Description: rdescription.value})
             };
     try{
-            fetch("http://localhost:3030/api/reviews", requestOptions)
+            fetch(API+"/api/reviews", requestOptions)
                 .then(response => response.json())
                 .then(data => alert(data.message));
     }catch(error){
@@ -66,7 +66,7 @@ function rep(){
     headers: { "Content-Type": "application/json", "token" : loggedUser.token },
     body: JSON.stringify({ user_id: loggedUser.id, park_id: props.id, status: true, description: rreport.value})
             };
-            fetch("http://localhost:3030/api/reports", requestOptions)
+            fetch(API+"/api/reports", requestOptions)
                 .then(response => response.json())
                 .then(data =>  data );
     rreport.value = ""
