@@ -37,7 +37,7 @@ fetch(API+'/reviews/?park_id='+props.id).then(res => res.json())
 
 
 const eves = ref(null)
-fetch('http://localhost:3030/api/events/?park_id='+props.id).then(res => res.json())
+fetch(API+'/api/events/?park_id='+props.id).then(res => res.json())
     .then(data => eves.value = data)
 
 function submit() {
@@ -48,7 +48,7 @@ function submit() {
     body: JSON.stringify({ user_id: loggedUser.id, park_id: props.id, Rating: rnumber.value, Description: rdescription.value})
             };
     try{
-            fetch("http://localhost:3030/api/reviews", requestOptions)
+            fetch(API+"/api/reviews", requestOptions)
                 .then(response => response.json())
                 .then(data => alert(data.message));
     }catch(error){
@@ -66,7 +66,7 @@ function rep(){
     headers: { "Content-Type": "application/json", "token" : loggedUser.token },
     body: JSON.stringify({ user_id: loggedUser.id, park_id: props.id, status: true, description: rreport.value})
             };
-            fetch("http://localhost:3030/api/reports", requestOptions)
+            fetch(API+"/api/reports", requestOptions)
                 .then(response => response.json())
                 .then(data =>  data );
     rreport.value = ""
