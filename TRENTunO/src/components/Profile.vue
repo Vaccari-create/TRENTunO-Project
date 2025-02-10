@@ -17,7 +17,7 @@ fetch(API+'/api/reviews/?user_id='+loggedUser.id).then(res => res.json())
     .then(data => {
         revs.value = data
         for (let index = 0; index < revs.value.length; index++) {
-            fetch('http://localhost:3030/api/parks/'+revs.value[index].park_id).then(res => res.json())
+            fetch(API+'/api/parks/'+revs.value[index].park_id).then(res => res.json())
                     .then(data => unames.value[index] = data) 
         }
     }
