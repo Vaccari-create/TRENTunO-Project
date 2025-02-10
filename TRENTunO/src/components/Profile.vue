@@ -2,7 +2,8 @@
 import Review from './Review.vue';
 import { ref } from 'vue';
 import { loggedUser, clearLoggedUser } from '@/login';
-
+import EventItem from './EventItem.vue';
+import DeleteEvent from './DeleteEvent.vue';
 import { router, API } from '@/main';
 
 console.log(loggedUser)
@@ -35,6 +36,9 @@ fetch(API+'/api/reviews/?user_id='+loggedUser.id).then(res => res.json())
         }
     }
 )
+const eves = ref(null)
+fetch(API+'/api/events/?user_id='+loggedUser.id).then(res => res.json())
+    .then(data => eves.value = data)
 
 function logout(){
     clearLoggedUser()
@@ -106,5 +110,15 @@ function cpass(){
         <Review v-for="(item,index) in revs" :name="unames[index].name" :text="item.Description" :rating="item.Rating"/> 
         
     </div>
+    </div>
+    <div class="flex justify-center">
+        <div class=" flex flex-col gap-5 w-1/2 p-4 items-center ">
+            <div class=" text-3xl font-bold text-center p-4">I tuoi Eventi</div>
+            <div v-for="(item, index) in eves" class=" flex gap-2 items-center">
+                <EventItem  :title="item.title" :date="item.date" :description="item.description" />
+                <DeleteEvent :id="item._id" />
+            </div>
+            
+        </div>
     </div>
 </template>

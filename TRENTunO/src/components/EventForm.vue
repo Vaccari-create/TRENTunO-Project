@@ -29,7 +29,7 @@ function submit() {
     headers: { "Content-Type": "application/json", "token" : loggedUser.token },
     body: JSON.stringify({ user_id: loggedUser.id, park_id: rid.value, title: rtitle.value, date: rdate.value, description: rdescription.value})
             };
-            fetch("http://localhost:3030/api/events?auth="+loggedUser.auth, requestOptions)
+            fetch(API+"/api/events?auth="+loggedUser.auth, requestOptions)
                 .then(response => response.json())
                 .then(data =>  data );
     rid.value = null

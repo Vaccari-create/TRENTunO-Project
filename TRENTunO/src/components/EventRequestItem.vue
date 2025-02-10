@@ -1,11 +1,40 @@
 <script setup>
 import { ref } from 'vue';
+import { defineProps } from 'vue';
+import { API,router } from '@/main';
+import { loggedUser } from '@/login';
 
-const props = defineProps(['title','place','date','text'])
+const props = defineProps(['id','title','place','date','text'])
 const rifiutato = ref('')
 
-function rifiuta(){
+function fakerifiuta(){
     rifiutato.value = 'hidden'
+}
+
+function del(){
+    const requestOptions = {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json", "token": loggedUser.token },
+    body: JSON.stringify({ })
+            };
+    fetch(API+"/api/events/"+props.id, requestOptions)
+                .then(response => response.json())
+                .then(data =>  {
+                    alert(data.message)
+                    router.push('/')} );
+}
+
+function accept(){
+    const requestOptions = {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", "token": loggedUser.token },
+    body: JSON.stringify({ })
+            };
+    fetch(API+"/api/events/changeStatus/"+props.id+"?user_level="+loggedUser.level, requestOptions)
+                .then(response => response.json())
+                .then(data =>  {
+                    alert(data.message)
+                    router.push('/')} );
 }
 </script>
 
@@ -20,8 +49,8 @@ function rifiuta(){
             <p>{{ props.text }}</p>
         </div>
         <div class=" flex items-center gap-5 justify-around">
-            <button class="  font-semibold p-3 px-8 w-30 rounded-full bg-sky-300 text-black">Accetta</button>
-            <button @click="rifiuta" class="  font-semibold p-3 px-8 w-30 rounded-full bg-red-300 text-black">Rifiuta</button>
+            <button @click="accept" class="  font-semibold p-3 px-8 w-30 rounded-full bg-sky-300 text-black">Accetta</button>
+            <button @click="fakerifiuta" class="  font-semibold p-3 px-8 w-30 rounded-full bg-red-300 text-black">Rifiuta</button>
         </div>
     </div>
 </template>

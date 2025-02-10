@@ -26,7 +26,6 @@ const revs = ref("null");
 const unames = ref([])
 fetch(API+'/api/reviews/?park_id='+props.id).then(res => res.json())
     .then(data => {
-        console.log(data)
         revs.value = data
         for (let index = 0; index < revs.value.length; index++) {
             fetch(API+'/api/users/'+revs.value[index].user_id).then(res => res.json())
@@ -37,7 +36,7 @@ fetch(API+'/api/reviews/?park_id='+props.id).then(res => res.json())
 
 
 const eves = ref(null)
-fetch(API+'/api/events/?park_id='+props.id).then(res => res.json())
+fetch(API+'/api/events/?park_id='+props.id+'&status='+true).then(res => res.json())
     .then(data => eves.value = data)
 
 function submit() {
@@ -81,7 +80,7 @@ function rep(){
                 <div class=" text-6xl font-bold mb-10">{{parkInfo.name}}</div>
                 <div>
                     <span > Position : </span>
-                    <div class=" font-semibold" > {{parkInfo.x_coord}} , {{ parkInfo.y_coord }}</div>
+                    <a :href="'https://www.google.it/maps/@'+parkInfo.x_coord+','+parkInfo.y_coord +',17z'" class=" block font-semibold" > {{parkInfo.x_coord}} , {{ parkInfo.y_coord }}</a>
                 </div>
                 <div>
                     <span > Categories : </span>
