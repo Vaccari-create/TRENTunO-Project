@@ -34,25 +34,25 @@ beforeAll(async () => {
   describe("PubPermission API", () => {
     /** GET /pubPermission */
     test("should fetch all publication requests", async () => {
-      const res = await request(app).get("/api/pubPermissions");
+      const res = await request(app).get("/api/pubPermissions?user_level=Admin");
       expect(res.status).toBe(200);
       expect(res.body.length).toBeGreaterThan(0);
     });
   
     test("should fetch publication requests for a specific user", async () => {
-      const res = await request(app).get(`/api/pubPermissions?user_id=${testUser._id}`);
+      const res = await request(app).get(`/api/pubPermissions?user_id=${testUser._id}?user_level=Admin`);
       expect(res.status).toBe(200);
       expect(res.body[0]).toHaveProperty("user_id", testUser._id.toString());
     });
   
     test("should return 400 for invalid user_id format", async () => {
-      const res = await request(app).get("/api/pubPermissions?user_id=invalidId");
+      const res = await request(app).get("/api/pubPermissions?user_id=invalidId?user_level=Admin");
       expect(res.status).toBe(400);
       expect(res.body.error).toBe("Invalid user_id format.");
     });
   
     test("should return 404 if no requests are found", async () => {
-      const res = await request(app).get(`/api/pubPermissions?user_id=${new mongoose.Types.ObjectId()}`);
+      const res = await request(app).get(`/api/pubPermissions?user_id=${new mongoose.Types.ObjectId()}?user_level=Admin`);
       expect(res.status).toBe(404);
       expect(res.body.message).toBe("No publication requests found.");
     });
@@ -94,19 +94,19 @@ beforeAll(async () => {
         user_id: testUser._id.toString(),
         Description: "To be deleted",
       });
-      const res = await request(app).delete(`/api/pubPermissions/${newRequest._id}`);
+      const res = await request(app).delete(`/api/pubPermissions/${newRequest._id}?user_level=Admin`);
       expect(res.status).toBe(200);
       expect(res.body.message).toBe("Publication request successfully deleted.");
     });
   
     test("should return 400 for invalid request ID format", async () => {
-      const res = await request(app).delete("/api/pubPermissions/invalidId");
+      const res = await request(app).delete("/api/pubPermissions/invalidId?user_level=Admin");
       expect(res.status).toBe(400);
       expect(res.body.error).toBe("Invalid request ID format.");
     });
   
     test("should return 404 if the request is not found", async () => {
-      const res = await request(app).delete(`/api/pubPermissions/${new mongoose.Types.ObjectId()}`);
+      const res = await request(app).delete(`/api/pubPermissions/${new mongoose.Types.ObjectId()}?user_level=Admin`);
       expect(res.status).toBe(404);
       expect(res.body.message).toBe("Publication request not found.");
     });

@@ -22,22 +22,15 @@ describe("POST /api/users/authentication", () => {
       });
 
     test("should authenticate user and return token", async () => {
-
-      //jest.spyOn(User, "findOne").mockResolvedValue(testUser);
-  
-      const res = await request(app)
+        const res = await request(app)
         .post("/api/users/authentication")
         .send({ email: testUser.email, password: testUser.password });
   
       expect(res.status).toBe(200);
-      //expect(res.body).toHaveProperty("success", true);
-      //expect(res.body).toHaveProperty("token", testUser.token);
-      //expect(res.body).toHaveProperty("userId", testUser._id.toString());
+    
     });
   
     test("should return 401 for invalid credentials", async () => {
-      //jest.spyOn(User, "findOne").mockResolvedValue(null);
-  
       const res = await request(app)
         .post("/api/users/authentication")
         .send({ email: "wrong@example.com", password: "wrongpass" });

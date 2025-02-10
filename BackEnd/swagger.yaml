@@ -1,15 +1,14 @@
 openapi: 3.0.0
 info:
   title: TRENTunO API
-  description: This is the API of the project TRENTunO
+  description: This is the API of the project TRENTunO. Project developed by Joao Victor Costa Vaccari, Matteo Lunardon, Davide Benetti
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   version: 1.0.0
 servers:
-- description: SwaggerHub API Auto Mocking
-- url: https://virtserver.swaggerhub.com/JOAOPROGRAMMING/TRENTunO/1.0.0
-  description: TRENTunO API Auto Mocking
+- description: TRENTunO API Auto Mocking
+  url: https://trentuno-jxf2.onrender.com/api
 tags:
 - name: User
   description: API to manage the users in the syste

@@ -7,6 +7,11 @@ const pubPermission = express.Router();
 
 pubPermission.get("/", async (req, res) => {
     const { user_id } = req.query;
+    const { user_level } = req.query;
+
+    if (!user_level || user_level !== 'Admin') {
+      return res.status(403).json({ message: 'Only admins can get publication permissions.' });
+    }
 
     try {
     const filter = {};
@@ -57,6 +62,11 @@ pubPermission.post('/', tokenChecker, async (req, res) => {
 
 pubPermission.delete('/:id', async (req, res) => {
   const { id } = req.params;
+  const { user_level } = req.query;
+
+  if (!user_level || user_level !== 'Admin') {
+    return res.status(403).json({ message: 'Only admins can delete publication permissions.' });
+  }
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
     return res.status(400).json({ error: 'Invalid request ID format.' });
