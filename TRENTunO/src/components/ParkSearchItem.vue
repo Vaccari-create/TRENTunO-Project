@@ -17,7 +17,7 @@ onBeforeMount(async () => {
 
 </script>
 <template>
-     <div class=" p-3 rounded-md shadow-lg w-15 bg-white" >
+     <div class=" p-3 rounded-md shadow-lg  bg-white" >
         <span class=" text-xl font-semibold "><router-link :to="tagClass" >{{props.name}}</router-link></span>
     </div>
 </template>

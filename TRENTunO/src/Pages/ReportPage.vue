@@ -20,7 +20,7 @@ fetch(API+'/api/reports').then(res => res.json())
 <template>
     <Navbar/>
     <div class=" text-3xl font-bold text-center p-4">Report</div>
-    <div class=" flex items-center gap-5 p-4">
+    <div class=" flex items-center gap-5 p-4 flex-wrap">
         <ReportItem v-for="(item,index) in reps" :user="unames[index].name" :text="item.description" />
     </div>
     <MainFooter/>
