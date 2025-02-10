@@ -21,7 +21,9 @@ function submit() {
         };
         fetch(API+"/api/users", requestOptions)
         .then(response => response.json())
-        .then(data =>  data );
+        .then(data =>  
+                    alert(data.message)
+                     );
         router.push("/login")
     }
 }
