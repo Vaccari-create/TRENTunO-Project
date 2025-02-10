@@ -11,6 +11,15 @@ if(loggedUser.id == undefined){
     router.push('/login')
 }
 
+const n = ref('')
+const s = ref('')
+
+fetch(API + '/api/users/67a4bf10c4bc572b7976126e').then(res => res.json())
+    .then(data => {
+        n.value = data.name
+        s.value = data.surname
+    })
+
 const revs = ref(null);
 const unames = ref([])
 fetch(API+'/api/reviews/?user_id='+loggedUser.id).then(res => res.json())
@@ -39,15 +48,11 @@ function logout(){
         </div>
         <div >
             <span class=" font-semibold"> Name </span>
-            <input type="text" name="Name" class=" block text-lg p-1 w-full rounded border-gray-200 border-2">
+            <input type="text" v-model="n" name="Name" class=" block text-lg p-1 w-full rounded border-gray-200 border-2">
         </div>
         <div>
             <span class=" font-semibold"> Surname </span>
-            <input type="text" name="Surname" class=" block text-lg p-1 w-full rounded border-gray-200 border-2">
-        </div>
-        <div>
-            <span class=" font-semibold"> Description </span>
-            <textarea name="description" class=" block text-lg p-1 w-full rounded border-gray-200 border-2 h-24"></textarea>
+            <input type="text" v-model="s" name="Surname" class=" block text-lg p-1 w-full rounded border-gray-200 border-2">
         </div>
         <button class=" text-xl font-semibold p-3 px-8 self-end rounded-full bg-slate-500 text-white">Salva</button>
         <button @click="logout" class=" text-xl font-semibold p-3 px-8 self-end rounded-full bg-red-300 text-white">LogOut</button>

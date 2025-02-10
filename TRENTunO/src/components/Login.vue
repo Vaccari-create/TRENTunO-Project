@@ -13,8 +13,7 @@ function login(){
             };
             fetch(API+"/api/users/authentication", requestOptions)
                 .then(response => response.json())
-                .then(data =>  {
-                console.log(data) 
+                .then(data =>  { 
                   if(data.success){
                     setLoggedUser(data)
                     router.push("/")
