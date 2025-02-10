@@ -37,7 +37,7 @@ reports.get("/", async (req, res) => {
 });
 
 reports.post('/', tokenChecker, async (req, res) => {
-  const { user_id, park_id, status, description } = req.body;
+  const { user_id, park_id, description } = req.body;
 
   if (!user_id || !mongoose.Types.ObjectId.isValid(user_id)) {
     return res.status(401).json({ error: 'Invalid or missing user_id format.' });
@@ -47,9 +47,6 @@ reports.post('/', tokenChecker, async (req, res) => {
     return res.status(402).json({ error: 'Invalid or missing park_id format.' });
   }
 
-  if (!status || (status !== "Inserita" && status !== "Presa in carico" && status !== "Chiusa")) {
-    return res.status(403).json({ error: 'Invalid status: must assume one of these values: "Inserita", "Presa in carico" or "Chiusa" '});
-  }
 
   if (!description || typeof description !== 'string' || description.trim() === '') {
     return res.status(404).json({ error: 'Invalid or missing description: must be a non-empty string.' });
@@ -60,7 +57,6 @@ reports.post('/', tokenChecker, async (req, res) => {
     const newReport = new Report({
       user_id,
       park_id,
-      status,
       description: description.trim(),
     });
 
@@ -94,9 +90,13 @@ reports.get("/:id", async (req, res) => {
     }
 });
 
-reports.delete("/:id", async (req, res) => {
+reports.delete("/:id",tokenChecker, async (req, res) => {
     const { id } = req.params;
+    const { user_level } = req.query;
 
+    if (!user_level || user_level !== 'Admin') {
+      return res.status(403).json({ message: 'Only admins can get publication permissions.' });
+    }
     if(!mongoose.Types.ObjectId.isValid(id)){
         res.status(400).json({ error: 'Invalid ID format' });
     }
@@ -122,7 +122,11 @@ reports.delete("/:id", async (req, res) => {
 reports.put("/changeStatus/:id", tokenChecker, async (req, res) => {
   const { id } = req.params;
   const { status } = req.body;
+  const { user_level } = req.query;
 
+  if (!user_level || user_level !== 'Admin') {
+    return res.status(403).json({ message: 'Only admins can get publication permissions.' });
+  }
   const validStatuses = Enums.status_level.enum;
 
   if (!mongoose.Types.ObjectId.isValid(id)) {
