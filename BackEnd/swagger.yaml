@@ -8,7 +8,7 @@ info:
   version: 1.0.0
 servers:
 - description: TRENTunO API Auto Mocking
-  url: https://trentuno-jxf2.onrender.com/api
+  url: https://trentuno.onrender.com/api
 tags:
 - name: User
   description: API to manage the users in the syste
@@ -193,6 +193,8 @@ paths:
                     type: string
                   auth:
                     type: boolean
+                  user_level:
+                    $ref: '#/components/schemas/UserLevelEnum'
         "401":
           description: Invalid credentials
           content:

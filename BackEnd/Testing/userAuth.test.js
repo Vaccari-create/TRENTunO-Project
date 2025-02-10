@@ -15,7 +15,7 @@ describe("POST /api/users/authentication", () => {
           name: "AAAAA",
           surname: "BBBBBBB",
           email: "aaa.bbb@unitn.it",
-          password: "SuperSecretPassword",
+          password: "SuperSecretPassword98*",
           user_level: "Client",
           auth: false,
         });

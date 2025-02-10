@@ -32,7 +32,7 @@ beforeAll(async () => {
       name: "Joao Victor",
       surname: "Costa Vaccari",
       email: "joao.costavaccari@studenti.unitn.it",
-      password: "securepassword",
+      password: "securePassword31#",
       user_level: "Admin",
       auth: true
     });

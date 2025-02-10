@@ -30,6 +30,7 @@ users.post("/authentication", async (req, res) => {
           token,
           userId: user._id,
           auth: user.auth,
+          user_level: user.user_level,
       });
   } catch (err) {
       console.error("Error during authentication:", err);
@@ -72,8 +73,15 @@ users.post("/", async (req, res) => {
       return res.status(400).json({ message: "All fields are required." });
     }
 
+    const passwordConstraint = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!#$%*-]).{8,}$/;
+
+    if (!passwordConstraint.test(password)) {
+      return res.status(400).json({
+        message: "Password must be at least 8 characters long, contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character (!, #, $, %, *, -).",});
+    }
+
     const validUserLevels = Enums.user_level.enum;
-    const assignedUserLevel = user_level;
+    const assignedUserLevel = user_level || "Client";
 
     if (!validUserLevels.includes(assignedUserLevel)) {
       return res.status(400).json({
