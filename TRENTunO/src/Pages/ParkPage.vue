@@ -24,7 +24,7 @@ fetch(API+'/api/parks/'+props.id).then(res => res.json())
 
 const revs = ref("null");
 const unames = ref([])
-fetch(API+'/reviews/?park_id='+props.id).then(res => res.json())
+fetch(API+'/api/reviews/?park_id='+props.id).then(res => res.json())
     .then(data => {
         console.log(data)
         revs.value = data
