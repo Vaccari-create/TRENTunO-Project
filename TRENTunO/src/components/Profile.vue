@@ -36,6 +36,18 @@ function logout(){
     clearLoggedUser()
     router.push('/')
 }
+
+function salva(){
+    const requestOptions = {
+    method: "PUT",
+    headers: { "Content-Type": "application/json", "token": loggedUser.token },
+    body: JSON.stringify({ updateFields: { name: n.value, surname: s.value}})
+            };
+    fetch(API+"/api/users/"+loggedUser.id, requestOptions)
+                .then(response => response.json())
+                .then(data =>  router.push('/') );
+
+}
 </script>
 
 <template>
@@ -54,7 +66,7 @@ function logout(){
             <span class=" font-semibold"> Surname </span>
             <input type="text" v-model="s" name="Surname" class=" block text-lg p-1 w-full rounded border-gray-200 border-2">
         </div>
-        <button class=" text-xl font-semibold p-3 px-8 self-end rounded-full bg-slate-500 text-white">Salva</button>
+        <button @click="salva" class=" text-xl font-semibold p-3 px-8 self-end rounded-full bg-slate-500 text-white">Salva</button>
         <button @click="logout" class=" text-xl font-semibold p-3 px-8 self-end rounded-full bg-red-300 text-white">LogOut</button>
         <Review v-for="(item,index) in revs" :name="unames[index].name" :text="item.Description" :rating="item.Rating"/> 
         
