@@ -196,7 +196,12 @@ users.put("/changePassword/:id", tokenChecker,  async (req, res) => {
   if (!password || password.trim() === "") {
       return res.status(400).json({ message: "New password is required." });
   }
+  const passwordConstraint = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!#$%*-]).{8,}$/;
 
+  if (!passwordConstraint.test(password)) {
+    return res.status(400).json({
+      message: "Password must be at least 8 characters long, contain at least 1 uppercase letter, 1 lowercase letter, 1 number, and 1 special character (!, #, $, %, *, -).",});
+  }
   try {
       const user = await User.findById(id);
       if (!user) {

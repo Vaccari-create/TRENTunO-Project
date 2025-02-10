@@ -17,7 +17,6 @@ beforeAll(async () => {
     testReport = await Report.create({
       user_id: validUserId.toString(),
       park_id: validParkId.toString(),
-      status: "Inserita",
       description: "Testing",
     });
   });
@@ -30,7 +29,6 @@ describe("POST /api/reports", () => {
       .send({
         user_id: validUserId.toString(),
         park_id: validParkId.toString(),
-        status: "Inserita",
         description: "Broken bench.",
       });
 
@@ -44,23 +42,16 @@ describe("POST /api/reports", () => {
     const res = await request(app)
       .post("/api/reports")
       .set("token", `${authToken}`)
-      .send({ park_id: validParkId.toString(), status: true, description: "Test" });
+      .send({ park_id: validParkId.toString(), description: "Test" });
     expect(res.status).toBe(401);
   });
 
-  test("should return 403 for invalid status type", async () => {
-    const res = await request(app)
-      .post("/api/reports")
-      .set("token", `${authToken}`)
-      .send({ user_id: validUserId.toString(), park_id: validParkId.toString(), status: "invalid", description: "Test" });
-    expect(res.status).toBe(403);
-  });
 });
 
 describe("PUT /changeStatus/:id", () => {
   test("should update the status of a report", async () => {
     const res = await request(app)
-      .put(`/api/reports/changeStatus/${testReport._id}`)
+      .put(`/api/reports/changeStatus/${testReport._id}?user_level=Admin`)
       .set("token", `${authToken}`)
       .send({ status: "Presa in Carico" });
 
@@ -70,7 +61,7 @@ describe("PUT /changeStatus/:id", () => {
 
   test("should return 400 for invalid report ID", async () => {
     const res = await request(app)
-      .put(`/api/reports/changeStatus/invalidID`)
+      .put(`/api/reports/changeStatus/invalidID?user_level=Admin`)
       .set("token", `${authToken}`)
       .send({ status: "Chiusa" });
 
@@ -79,7 +70,7 @@ describe("PUT /changeStatus/:id", () => {
 
   test("should return 400 for invalid status", async () => {
     const res = await request(app)
-      .put(`/api/reports/changeStatus/${testReport._id}`)
+      .put(`/api/reports/changeStatus/${testReport._id}?user_level=Admin`)
       .set("token", `${authToken}`)
       .send({ status: "InvalidStatus" });
 
@@ -90,7 +81,7 @@ describe("PUT /changeStatus/:id", () => {
   test("should return 404 if report is not found", async () => {
     const fakeId = new mongoose.Types.ObjectId();
     const res = await request(app)
-      .put(`/api/reports/changeStatus/${fakeId}`)
+      .put(`/api/reports/changeStatus/${fakeId}?user_level=Admin`)
       .set("token", `${authToken}`)
       .send({ status: "Chiusa" });
 
@@ -126,7 +117,7 @@ describe("GET /api/reports/:id", () => {
 describe("DELETE /api/reports/:id", () => {
   test("should delete a report successfully", async () => {
     const res = await request(app)
-      .delete(`/api/reports/${testReport._id}`)
+      .delete(`/api/reports/${testReport._id}?user_level=Admin`)
       .set("token", `${authToken}`);
     expect(res.status).toBe(200);
   });
