@@ -193,6 +193,8 @@ paths:
                     type: string
                   auth:
                     type: boolean
+                  user_level:
+                    $ref: '#/components/schemas/UserLevelEnum'
         "401":
           description: Invalid credentials
           content:

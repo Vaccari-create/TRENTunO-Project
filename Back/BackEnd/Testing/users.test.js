@@ -82,7 +82,7 @@ describe("PUT /users/:id", () => {
       name: "Joao Victor",
       surname: "Costa Vaccari",
       email: "joao@unitn.com",
-      password: "RandomPassword",
+      password: "RandomPassword2#",
       user_level: "Client",
       auth: false,
     });
@@ -132,7 +132,7 @@ describe("POST /users", () => {
         name: "Test",
         surname: "User",
         email: "joaoTEST1@example.com",
-        password: "securepassword",
+        password: "securePassword4-",
         user_level: "Client",
       });
 
@@ -148,7 +148,7 @@ describe("POST /users", () => {
         name: "Test",
         surname: "User",
         email: "joaoTEST1@example.com",
-        password: "securepassword",
+        password: "securePassword8*",
         user_level: "Client",
       });
 
@@ -161,7 +161,7 @@ describe("POST /users", () => {
       .post("/api/users")
       .send({
         email: "newuser@example.com",
-        password: "password123",
+        password: "Password123#",
       });
 
     expect(res.status).toBe(400);
@@ -175,7 +175,7 @@ describe("POST /users", () => {
         name: "Joao",
         surname: "Vaccari",
         email: "joaoTEST@example.com",
-        password: "password123",
+        password: "pAssword123!",
         user_level: "InvalidLevel",
       });
 
@@ -196,7 +196,7 @@ describe("DELETE /users/:id", () => {
       name: "Admin",
       surname: "User",
       email: "admin@example.com",
-      password: "password",
+      password: "passwordSecret2%",
       user_level: "Admin",
     });
 
@@ -204,7 +204,7 @@ describe("DELETE /users/:id", () => {
       name: "John",
       surname: "Doe",
       email: "john@example.com",
-      password: "password",
+      password: "passwordSecret8!",
       user_level: "Client",
     });
   });
@@ -228,7 +228,7 @@ describe("PUT /users/changePassword/:id", () => {
       name: "Davide",
       surname: "Benetti",
       email: "Davide@unitn.it",
-      password: "password",
+      password: "passwordDavide9*",
       user_level: "Client",
     });
   });
@@ -237,7 +237,7 @@ describe("PUT /users/changePassword/:id", () => {
     const res = await request(app)
       .put(`/api/users/changePassword/${testUser._id}`)
       .set("token", `${authToken}`)
-      .send({ password: "newpassword" });
+      .send({ password: "NewPassword5#" });
 
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty("message", "Password successfully updated.");
@@ -252,7 +252,7 @@ describe("PUT /users/changeAuth/:id", () => {
       name: "Matteo",
       surname: "Lunardon",
       email: "matteo.lunardon@unitn.it",
-      password: "passwordAdmin",
+      password: "passwordAdmin31*",
       user_level: "Admin",
       auth: true,
     });
@@ -261,7 +261,7 @@ describe("PUT /users/changeAuth/:id", () => {
       name: "Joao Victor",
       surname: "Costa Vaccari",
       email: "joao.costavacari@unitn.it",
-      password: "passwordClient",
+      password: "passwordClient72!",
       user_level: "Client",
       auth: false,
     });
