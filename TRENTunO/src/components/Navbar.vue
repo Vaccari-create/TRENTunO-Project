@@ -21,6 +21,8 @@ if(loggedUser.level == 'Admin'){
           <router-link to="/permission" class="block text-lg font-semibold">Permission</router-link>
           <router-link :class="vis" to="/eventRequest" class="block text-lg font-semibold">Events Request</router-link>
           <router-link :class="vis" to="/pubRequest" class="block text-lg font-semibold">Permission Request</router-link>
+          <router-link :class="vis" to="/addPark" class="block text-lg font-semibold">Add Park</router-link>
+
       </div>
       <div class="flex items-center gap-4">
           <router-link to="/login" class="block text-lg font-semibold">Login</router-link>

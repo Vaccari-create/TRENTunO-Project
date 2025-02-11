@@ -14,7 +14,7 @@ import PermissionPage from './Pages/PermissionPage.vue'
 import ReportPage from './Pages/ReportPage.vue'
 import EventRequestPage from './Pages/EventRequestPage.vue'
 import PermissionRequestPage from './Pages/PermissionRequestPage.vue'
-
+import AddParkPage from './Pages/AddParkPage.vue'
 export const API = "https://trentuno.onrender.com"
 
 export const router = createRouter({
@@ -30,7 +30,8 @@ export const router = createRouter({
         {path: '/profile', component: ProfilePage},
         {path: '/report', component: ReportPage},
         {path: '/eventRequest', component: EventRequestPage},
-        {path: '/pubRequest', component: PermissionRequestPage}
+        {path: '/pubRequest', component: PermissionRequestPage},
+        {path: '/addPark', component: AddParkPage}
     ]
 });
 
