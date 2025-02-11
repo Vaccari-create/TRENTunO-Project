@@ -31,7 +31,7 @@ function submit() {
             };
             fetch(API+"/api/events?auth="+loggedUser.auth, requestOptions)
                 .then(response => response.json())
-                .then(data =>  data );
+                .then(data =>  alert(data.message) );
     rid.value = null
     rdescription.value = null
     rdate.value = null

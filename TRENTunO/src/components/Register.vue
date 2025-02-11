@@ -9,7 +9,6 @@ const remail = ref(null)
 const rconf = ref(null)
 
 function submit() {
-        // console.log("--------")
     if(rpassword.value != rconf.value)
         alert("Le password non corrispondono")
     else{
