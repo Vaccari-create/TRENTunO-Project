@@ -4,7 +4,8 @@ import { defineProps } from 'vue';
 import { API,router } from '@/main';
 import { loggedUser } from '@/login';
 
-const props = defineProps(['id','title','place','date','text'])
+const props = defineProps(['id','userId','name','text'])
+
 
 function del(){
     const requestOptions = {
@@ -12,7 +13,7 @@ function del(){
     headers: { "Content-Type": "application/json", "token": loggedUser.token },
     body: JSON.stringify({ })
             };
-    fetch(API+"/api/events/"+props.id, requestOptions)
+    fetch(API+"/api/pubPermissions/"+props.id+'?user_level='+loggedUser.level, requestOptions)
                 .then(response => response.json())
                 .then(data =>  {
                     alert(data.message)
@@ -25,21 +26,20 @@ function accept(){
     headers: { "Content-Type": "application/json", "token": loggedUser.token },
     body: JSON.stringify({ })
             };
-    fetch(API+"/api/events/changeStatus/"+props.id+"?user_level="+loggedUser.level, requestOptions)
+    fetch(API+"/api/users/changeAuth/"+props.userId+"?adminId="+loggedUser.id, requestOptions)
                 .then(response => response.json())
                 .then(data =>  {
                     alert(data.message)
+                    del()
                     router.push('/')} );
 }
 </script>
 
 <template>
-     <div class=" p-3 rounded-md bg-lime-300 shadow-lg max-w-md " >
+     <div  class=" p-3 rounded-md bg-lime-300 shadow-lg max-w-md " >
         <div class=" font-semibold">
-            {{ props.title }} 
+            {{ props.name }} 
         </div>
-        <div> <b>Place</b> : {{props.place}}</div>
-        <div><b>Date</b> : {{ props.date }}</div>
         <div class=" p-3 max-h-28 overflow-scroll">
             <p>{{ props.text }}</p>
         </div>
